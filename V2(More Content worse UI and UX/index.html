@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit Forge</title>
+
+<link rel="stylesheet" href="CSS/1.css">
+<link rel="stylesheet" href="CSS/2.css">
+<link rel="stylesheet" href="CSS/3.css">
+<link rel="stylesheet" href="CSS/4.css">
+<link rel="stylesheet" href="CSS/5.css">
+</head>
+<body>
+
+  <div id="app" class="app"></div>
+
+  <div id="modal"></div>
+
+  <div id="cs-overlay" class="cs-overlay" style="display:none; opacity:0;">
+    <div class="cs-bg-glow" id="cs-bg-glow"></div>
+    <div class="cs-dialog" id="cs-dialog">
+      <div class="cs-portrait-wrap">
+        <canvas id="cs-canvas" width="120" height="120"></canvas>
+      </div>
+      <div class="cs-text-wrap">
+        <div class="cs-speaker" id="cs-speaker"></div>
+        <span class="cs-text" id="cs-text"></span>
+        <span class="cs-cursor" id="cs-cursor"></span>
+        <div class="cs-dots" id="cs-dots"></div>
+      </div>
+    </div>
+  </div>
+
+  <!--
+    Load order (NOT numeric filename order):
+    1.js core, 4.js engine, 2.js cutscenes, 8.js tutorial,
+    3.js editor, 9.js views, 5.js json-ide, 7.js main-progression,
+    6.js main-init (must be last)
+  -->
+  <script src="JS/1.js"></script>
+  <script src="JS/4.js"></script>
+  <script src="JS/2.js"></script>
+  <script src="JS/8.js"></script>
+  <script src="JS/3.js"></script>
+  <script src="JS/9.js"></script>
+  <script src="JS/5.js"></script>
+  <script src="JS/7.js"></script>
+  <script src="JS/6.js"></script>
+
+</body>
+</html>

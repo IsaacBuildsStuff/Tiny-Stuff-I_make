@@ -1,0 +1,58 @@
+/* ── JSON IDE ─────────────────────────────────────────────── */
+.json-ide { display: flex; height: 100%; }
+.json-lpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
+.json-cmid { flex: 1; overflow-y: auto; padding: 14px; min-width: 0; }
+.json-rpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; }
+.rk-bar-bg { height: 4px; background: #040609; border-radius: 2px; overflow: hidden; }
+.rk-bar-fg { height: 100%; background: var(--acc); border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 4px var(--acc); }
+.json-litem { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 2px; cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
+.json-litem:hover { background: rgba(119,102,255,0.06); }
+.json-litem.active { background: rgba(119,102,255,0.12); }
+.json-litem.done .json-lnum { color: var(--good); }
+.json-lnum { font-size: 10px; min-width: 16px; }
+.json-ltitle { font-size: 9px; color: var(--text); }
+.rk-badge { text-align: center; padding: 10px; background: #06080f; border: 1px solid var(--border); border-radius: 4px; margin-bottom: 10px; }
+.rk-badge-icon { font-size: 28px; color: var(--acc); display: block; margin-bottom: 4px; }
+.rk-badge-name { font-size: 12px; color: var(--acc); font-weight: bold; letter-spacing: 2px; }
+.rk-badge-tier { font-size: 7px; color: var(--dim); margin-top: 2px; }
+.rk-feat { display: flex; align-items: center; gap: 5px; font-size: 8px; padding: 3px 0; color: var(--dim); }
+.rk-feat.on { color: var(--text); }
+.rk-feat-icon { font-size: 10px; }
+.rk-feat.on .rk-feat-icon { color: var(--good); }
+.rk-sandbox { font-size: 8px; color: var(--dim); padding: 6px; background: #06080f; border: 1px solid var(--border); border-radius: 3px; margin-top: 8px; text-align: center; }
+.rk-sandbox.active { border-color: rgba(68,255,136,0.3); color: var(--good); }
+.jl-h1 { font-size: 16px; color: var(--acc2); font-weight: bold; letter-spacing: 2px; margin-bottom: 4px; }
+.jl-sub { font-size: 9px; color: var(--dim); letter-spacing: 2px; margin-bottom: 14px; }
+.jl-p { font-size: 10px; color: var(--text); line-height: 1.7; margin-bottom: 12px; }
+.jl-code { background: #010306; border: 1px solid var(--border); border-radius: 3px; padding: 10px; font-family: 'Courier New', monospace; font-size: 10px; color: var(--text); margin-bottom: 12px; overflow-x: auto; white-space: pre; line-height: 1.6; }
+.jl-code::-webkit-scrollbar { height: 4px; }
+.jl-code::-webkit-scrollbar-thumb { background: #1a2040; }
+.jl-rule { background: #06080f; border: 1px solid var(--border); border-left: 3px solid var(--acc); border-radius: 3px; padding: 10px; margin-bottom: 12px; }
+.jl-rule-hdr { font-size: 9px; color: var(--acc); font-weight: bold; letter-spacing: 1px; margin-bottom: 6px; }
+.jl-rule-body { font-size: 9px; color: var(--dim); line-height: 1.7; }
+.jl-rule-body code { background: #040609; padding: 1px 4px; border-radius: 2px; color: var(--acc2); }
+.jl-ex { background: rgba(119,102,255,0.05); border: 1px solid rgba(119,102,255,0.2); border-radius: 3px; padding: 10px; margin-bottom: 12px; }
+.jl-ex-hdr { font-size: 10px; color: var(--acc); font-weight: bold; margin-bottom: 6px; }
+.jl-ex-body { font-size: 9px; color: var(--text); line-height: 1.7; }
+.jl-ex-body code { background: #040609; padding: 1px 4px; border-radius: 2px; color: var(--acc2); }
+.json-tb { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
+.jbt { background: #06080f; border: 1px solid var(--border2); color: var(--dim); padding: 4px 10px; font-size: 9px; font-family: 'Courier New', monospace; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
+.jbt:hover:not(:disabled) { border-color: var(--acc); color: var(--acc2); }
+.jbt:disabled { opacity: 0.3; cursor: not-allowed; }
+.jbt.go { border-color: rgba(68,255,136,0.3); color: var(--good); }
+.jbt.go:disabled { border-color: var(--border2); color: var(--dim); }
+.done-tag { font-size: 9px; color: var(--good); padding: 3px 8px; background: rgba(68,255,136,0.06); border: 1px solid rgba(68,255,136,0.2); border-radius: 2px; }
+.json-editor { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; background: #010306; min-height: 200px; max-height: 350px; }
+.json-gutter { flex-shrink: 0; background: #02050b; color: #2a3870; font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.7; padding: 10px 6px; text-align: right; user-select: none; overflow: hidden; min-width: 34px; }
+.json-code { flex: 1; position: relative; overflow: hidden; }
+.json-hl-layer { position: absolute; inset: 0; margin: 0; padding: 10px; font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; overflow-y: auto; pointer-events: none; }
+.json-ta { position: absolute; inset: 0; width: 100%; height: 100%; background: transparent; border: none; color: transparent; caret-color: var(--acc); font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.7; padding: 10px; resize: none; outline: none; white-space: pre-wrap; word-break: break-word; overflow-y: auto; }
+.jhl-key { color: #7799ff; }
+.jhl-str { color: #44cc88; }
+.jhl-num { color: #ffaa44; }
+.jhl-kw { color: #cc77ff; font-weight: bold; }
+.jhl-punc { color: #3a4a70; }
+.json-val { font-size: 10px; padding: 6px 10px; border-radius: 3px; margin-top: 6px; font-family: 'Courier New', monospace; }
+.json-val.ok { background: rgba(68,255,136,0.06); color: var(--good); border: 1px solid rgba(68,255,136,0.2); }
+.json-val.err { background: rgba(255,68,85,0.06); color: var(--bad); border: 1px solid rgba(255,68,85,0.2); }
+.json-val.idle { background: #06080f; color: var(--dim); border: 1px solid var(--border); }

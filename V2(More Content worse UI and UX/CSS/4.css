@@ -56,3 +56,8 @@
 .json-val.ok { background: rgba(68,255,136,0.06); color: var(--good); border: 1px solid rgba(68,255,136,0.2); }
 .json-val.err { background: rgba(255,68,85,0.06); color: var(--bad); border: 1px solid rgba(255,68,85,0.2); }
 .json-val.idle { background: #06080f; color: var(--dim); border: 1px solid var(--border); }
+
+/* ── V6B: JSON EDITOR GUTTER LINE MARKERS ───────────────────── */
+#jln div { height: 1.7em; line-height: 1.7; }
+#jln .active-line { color: var(--acc); background: rgba(119,102,255,.12); font-weight: bold; }
+#jln .error-line { color: #ff5555; background: rgba(255,85,85,.2); }

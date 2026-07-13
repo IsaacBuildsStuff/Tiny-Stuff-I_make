@@ -111,3 +111,38 @@
   margin-top: 4px;
   letter-spacing: 0.5px;
 }
+
+/* ── V6B: BETTER CTRL BAR ──────────────────────────────────── */
+.ctrl { justify-content: center; flex-shrink: 0; border-radius: 5px; }
+.ctrl-divider { width: 1px; height: 24px; background: var(--border); margin: 0 2px; flex-shrink: 0; }
+.c-btn-restart { border-color: #2a3060; color: #6677aa; }
+.c-btn-restart:hover { border-color: #44aaff; color: #44aaff; background: #051828; }
+.c-btn-pause.on { border-color: #ffaa44; color: #ffaa44; background: #201400; }
+.intel-label { font-size: 7px; letter-spacing: 1px; margin-top: 1px; color: inherit; opacity: .7; display: block; }
+.intel-btn { background: #050918; border-color: #1a2050; }
+.intel-btn:hover { border-color: #4455ff; color: #aabbff; background: #050d28; }
+.intel-btn.on { border-color: #5566ff; box-shadow: 0 0 10px #4455ff33; }
+.intel-btn.on .intel-dot { background: #4488ff; box-shadow: 0 0 5px #4488ff; animation: dotPulse 1.4s ease-in-out infinite; }
+@keyframes dotPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(.7)} }
+.mb:hover { color: #aabbff; border-color: #4455ff; background: #050d28; }
+.mb.fight { border-color: #1a4030; color: #338855; }
+.mb.fight:hover { border-color: var(--good); color: var(--good); background: #051a0e; }
+
+/* ── V6B: TOOLTIP SYSTEM ────────────────────────────────────── */
+.tip-host { position: relative; display: inline-flex; }
+.tip-host:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
+.tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(4px); background: #0a0d20; border: 1px solid #2a3060; border-radius: 4px; padding: 7px 10px; min-width: 140px; max-width: 210px; pointer-events: none; opacity: 0; transition: opacity .18s, transform .18s; z-index: 100; text-align: left; white-space: normal; }
+.tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #2a3060; }
+.tip-title { font-size: 9px; color: #aabbff; font-weight: bold; letter-spacing: 1px; margin-bottom: 3px; }
+.tip-body { font-size: 8px; color: #6677aa; line-height: 1.5; }
+
+/* ── V6B: ONBOARDING BANNER ─────────────────────────────────── */
+.onboard-bar { background: #02040e; border-bottom: 1px solid #1a2040; padding: 6px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; font-size: 9px; }
+.onboard-bar.hidden { display: none; }
+.ob-step { display: flex; align-items: center; gap: 5px; color: #3a4a70; padding: 3px 8px; border-radius: 3px; border: 1px solid transparent; }
+.ob-step.active { color: #7788cc; border-color: #2a3460; background: #070c20; }
+.ob-num { width: 14px; height: 14px; border-radius: 50%; border: 1px solid #2a3460; display: flex; align-items: center; justify-content: center; font-size: 7px; color: #5566aa; flex-shrink: 0; }
+.ob-step.active .ob-num { background: #1a2050; color: #8899ff; }
+.ob-arrow { color: #2a3060; font-size: 10px; }
+.ob-close { margin-left: auto; background: transparent; border: none; color: #2a3460; cursor: pointer; font-size: 14px; padding: 2px 6px; }
+.ob-close:hover { color: #5566aa; }

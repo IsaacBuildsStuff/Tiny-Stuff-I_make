@@ -33,7 +33,13 @@ const StoryProgress={
 function checkStoryProgress(){
   const rank=JsonFreedom.getRank();const fired=StoryProgress.getFired();
   const chapter=STORY_CHAPTERS.find(c=>c.rank===rank&&!fired.has(c.id));
-  if(chapter){StoryProgress.mark(chapter.id);setTimeout(()=>playCutscene(chapter.cs),900);}
+  if(chapter){
+    StoryProgress.mark(chapter.id);
+    setTimeout(()=>{
+      if(!CS.active) playCutscene(chapter.cs);
+      else setTimeout(()=>playCutscene(chapter.cs), 2000);
+    }, 900);
+  }
 }
 const JsonFreedom={
   getCompleted(){try{return new Set(JSON.parse(localStorage.getItem(JSON_FREEDOM_KEY)||'[]'));}catch{return new Set();}},
@@ -333,6 +339,9 @@ function jsonTaInput(ta){
       :'\u2713 Valid JSON \u2014 exercise complete!';
   }
   const prv=document.getElementById('jprv');if(prv)prv.innerHTML=jsonPreviewHtml(vr);
+  const subBtn=document.querySelector('.jbt.go');
+  if(subBtn&&vr.ok)subBtn.removeAttribute('disabled');
+  else if(subBtn)subBtn.setAttribute('disabled','');
 }
 function jsonHandleEditorKeys(e,ta){
   const start=ta.selectionStart,end=ta.selectionEnd,value=ta.value;
@@ -347,7 +356,7 @@ function jsonClr(){const ta=document.getElementById('jta');if(!ta)return;ta.valu
 function jsonRst(){const l=JSON_LESSONS.find(x=>x.id===JIS.lesson);if(!l)return;const ta=document.getElementById('jta');if(!ta)return;ta.value=l.initialCode||'';jIdeUndo.reset(ta.value);jsonTaInput(ta);}
 function jsonLoadUnit(sel){const id=sel.value;sel.value='';if(!id)return;const def=getDef(id);if(!def)return;const ta=document.getElementById('jta');if(!ta)return;ta.value=JSON.stringify(def,null,2);jIdeUndo.reset(ta.value);jsonTaInput(ta);}
 function jsonDownload(){const text=JIS.code||'';const blob=new Blob([text],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${(JIS.lesson||'unit').replace(/[^a-z0-9_-]+/gi,'_')||'unit'}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
-function jsonSubmit(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok)return;const id=JIS.lesson;JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();const idx=JSON_LESSONS.findIndex(l=>l.id===id);const next=JSON_LESSONS[idx+1];setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);}
+function jsonSubmit(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok){console.log('Submit failed:',vr);return;}const id=JIS.lesson;JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();const idx=JSON_LESSONS.findIndex(l=>l.id===id);const next=JSON_LESSONS[idx+1];setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);}
 function jsonImport(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok||!vr.parsed)return;const def=mkDef(vr.parsed);const idx=S.units.findIndex(u=>u.id===def.id);if(idx>=0)S.units[idx]=def;else S.units.push(def);const alreadyDone=JsonFreedom.getCompleted().has('import');JsonFreedom.complete('import');if(!alreadyDone){showJIdToast('import');setTimeout(()=>showImportToast(def.name),1300);}else{showImportToast(def.name);}checkStoryProgress();setTimeout(()=>{JIS.validation=null;renderJsonIde();},2000);}
 function showJIdToast(completedId){
   const completed=JsonFreedom.getCompleted();const newRank=JsonFreedom.getRank();

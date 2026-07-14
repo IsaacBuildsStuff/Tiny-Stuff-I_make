@@ -129,6 +129,6 @@
 .m-foot { padding:10px 18px; border-top:1px solid var(--border); display:flex; gap:8px; justify-content:flex-end; flex-shrink:0; }
 
 /* ── V6B: CINEMATIC LETTERBOX BARS ──────────────────────────── */
-.cs-lb { height:72px; background:#000; flex-shrink:0; position:relative; overflow:hidden; }
+.cs-lb { height:72px; background:linear-gradient(180deg, #000 0%, #0a0d1e 100%); flex-shrink:0; position:relative; overflow:hidden; box-shadow: 0 0 20px rgba(0,0,0,0.8); }
 .cs-lb::after { content:''; position:absolute; inset:0; background:repeating-linear-gradient(0deg,rgba(255,255,255,.02) 0,rgba(255,255,255,.02) 1px,transparent 1px,transparent 3px); }
 .cs-main { flex:1; display:flex; align-items:center; gap:52px; padding:0 60px; position:relative; overflow:hidden; }

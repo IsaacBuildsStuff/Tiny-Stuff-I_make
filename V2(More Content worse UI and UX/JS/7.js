@@ -4,6 +4,7 @@
 
 const PROGRESSION_KEY = 'uf_progression_v1';
 const MISSIONS_KEY = 'uf_missions_v1';
+const UNITS_KEY = 'uf_units_v1';
 
 // XP needed to reach next level (cumulative)
 const XP_TABLE = [
@@ -124,6 +125,13 @@ const MISSIONS = [
     xp: 0,
     check: () => Progression.level >= 10,
   },
+  {
+    id: 'complete_all_lessons',
+    title: 'TRUE MASTER',
+    desc: 'Complete every JSON lesson.',
+    xp: 300,
+    check: () => JsonFreedom.getCompleted().size >= 12,
+  },
 ];
 
 const Progression = {
@@ -154,8 +162,13 @@ const Progression = {
         this.stats.unitsUsed = new Set(data.stats.unitsUsed || []);
       }
       this.missionsCompleted = new Set(JSON.parse(localStorage.getItem(MISSIONS_KEY) || '[]'));
+      
+      const unitsData = JSON.parse(localStorage.getItem(UNITS_KEY) || '[]');
+      if (Array.isArray(unitsData) && unitsData.length > 0) {
+        S.units = unitsData.map(u => mkDef(u));
+      }
     } catch(e) {
-      // Fresh start on error
+      console.error('Load failed:',e);
     }
   },
 
@@ -174,7 +187,14 @@ const Progression = {
         }
       }));
       localStorage.setItem(MISSIONS_KEY, JSON.stringify([...this.missionsCompleted]));
-    } catch(e) {}
+      localStorage.setItem(UNITS_KEY, JSON.stringify(S.units.map(u=>({
+        id:u.id,name:u.name,school:u.school,desc:u.desc,hp:u.hp,armor:u.armor,spd:u.spd,
+        passive:u.passive,passive2:u.passive2,visual:u.visual,magic:u.magic,melee:u.melee,ranged:u.ranged,
+        ai:u.ai,glitch:u.glitch,color:u.color,resistances:u.resistances,move:u.move
+      }))));
+    } catch(e) {
+      console.error('Save failed:',e);
+    }
   },
 
   xpToNext() {

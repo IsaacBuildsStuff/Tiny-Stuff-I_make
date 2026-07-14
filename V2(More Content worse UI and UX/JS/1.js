@@ -172,6 +172,8 @@ const D_AI={
   specialBias:0.6,manaConserve:0.3,retreatToHeal:0.3,
   adaptRate:0.3,pressureResponse:0.5,flankTendency:0.2,
   attackDelay:0.1,cancelThreshold:0.5,
+  movementStyle:'orbit',movementAggression:0.5,movementVar:0.2,
+  pursuitSpeed:1.0,retreatSpeed:1.2,orbitRadius:150,
   notes:'',
 };
 const D_GLITCH={
@@ -179,16 +181,16 @@ const D_GLITCH={
   cd:3500,power:14,duration:3000,radius:55,range:210,
 };
 const STANCES={
-  balanced:  {aggression:.5,spacing:.5,strafe:.5,dodge:.4,retreatThreshold:.2,aim:.8,prediction:.5,comboBias:.5,keepDistance:.5},
-  aggressive:{aggression:.82,spacing:.2,strafe:.35,dodge:.2,retreatThreshold:.08,comboBias:.72,targetCommit:.85,keepDistance:.15,burstWindow:.7},
-  defensive: {aggression:.25,spacing:.72,strafe:.65,dodge:.72,retreatThreshold:.38,specialBias:.4,keepDistance:.72,manaConserve:.5,baiting:.4},
-  sniper:    {aggression:.18,spacing:.88,strafe:.72,dodge:.55,keepDistance:.9,retreatThreshold:.3,aim:.95,prediction:.82,leadFactor:.75},
-  berserk:   {aggression:.97,spacing:.05,strafe:.18,comboBias:.9,targetCommit:.95,retreatThreshold:.04,keepDistance:.05,dodge:.1,burstWindow:.9},
-  cunning:   {aggression:.55,randomness:.5,dodge:.65,prediction:.7,baiting:.6,counterPlay:.72,comboBias:.65,flankTendency:.55},
-  duelist:   {aggression:.65,spacing:.55,strafe:.72,dodge:.6,counterPlay:.75,parryTendency:.6,comboBias:.68,dodgeTiming:.7},
-  coward:    {aggression:.12,spacing:.9,strafe:.8,dodge:.85,keepDistance:.95,retreatThreshold:.45,baiting:.55,manaConserve:.6},
-  guardian:  {aggression:.4,spacing:.6,strafe:.55,dodge:.5,retreatThreshold:.15,specialBias:.3,comboBias:.4,keepDistance:.55,adaptRate:.6},
-  trickster: {aggression:.6,randomness:.65,baiting:.7,dodge:.7,prediction:.6,flankTendency:.65,comboBias:.55,cancelThreshold:.6},
+  balanced:  {aggression:.5,spacing:.5,strafe:.5,dodge:.4,retreatThreshold:.2,aim:.8,prediction:.5,comboBias:.5,keepDistance:.5,movementStyle:'orbit',movementAggression:.5,movementVar:.2,pursuitSpeed:1.0,retreatSpeed:1.2,orbitRadius:150},
+  aggressive:{aggression:.82,spacing:.2,strafe:.35,dodge:.2,retreatThreshold:.08,comboBias:.72,targetCommit:.85,keepDistance:.15,burstWindow:.7,movementStyle:'aggressive',movementAggression:.9,movementVar:.1,pursuitSpeed:1.4,retreatSpeed:0.8,orbitRadius:80},
+  defensive: {aggression:.25,spacing:.72,strafe:.65,dodge:.72,retreatThreshold:.38,specialBias:.4,keepDistance:.72,manaConserve:.5,baiting:.4,movementStyle:'kite',movementAggression:.2,movementVar:.3,pursuitSpeed:0.8,retreatSpeed:1.5,orbitRadius:200},
+  sniper:    {aggression:.18,spacing:.88,strafe:.72,dodge:.55,keepDistance:.9,retreatThreshold:.3,aim:.95,prediction:.82,leadFactor:.75,movementStyle:'strafe',movementAggression:.1,movementVar:.15,pursuitSpeed:0.6,retreatSpeed:1.3,orbitRadius:250},
+  berserk:   {aggression:.97,spacing:.05,strafe:.18,comboBias:.9,targetCommit:.95,retreatThreshold:.04,keepDistance:.05,dodge:.1,burstWindow:.9,movementStyle:'aggressive',movementAggression:1.0,movementVar:.05,pursuitSpeed:1.6,retreatSpeed:0.5,orbitRadius:50},
+  cunning:   {aggression:.55,randomness:.5,dodge:.65,prediction:.7,baiting:.6,counterPlay:.72,comboBias:.65,flankTendency:.55,movementStyle:'erratic',movementAggression:.6,movementVar:.7,pursuitSpeed:1.1,retreatSpeed:1.1,orbitRadius:140},
+  duelist:   {aggression:.65,spacing:.55,strafe:.72,dodge:.6,counterPlay:.75,parryTendency:.6,comboBias:.68,dodgeTiming:.7,movementStyle:'strafe',movementAggression:.7,movementVar:.25,pursuitSpeed:1.2,retreatSpeed:1.0,orbitRadius:130},
+  coward:    {aggression:.12,spacing:.9,strafe:.8,dodge:.85,keepDistance:.95,retreatThreshold:.45,baiting:.55,manaConserve:.6,movementStyle:'kite',movementAggression:.05,movementVar:.4,pursuitSpeed:0.5,retreatSpeed:1.8,orbitRadius:280},
+  guardian:  {aggression:.4,spacing:.6,strafe:.55,dodge:.5,retreatThreshold:.15,specialBias:.3,comboBias:.4,keepDistance:.55,adaptRate:.6,movementStyle:'orbit',movementAggression:.4,movementVar:.2,pursuitSpeed:0.9,retreatSpeed:1.1,orbitRadius:160},
+  trickster: {aggression:.6,randomness:.65,baiting:.7,dodge:.7,prediction:.6,flankTendency:.65,comboBias:.55,cancelThreshold:.6,movementStyle:'erratic',movementAggression:.5,movementVar:.8,pursuitSpeed:1.3,retreatSpeed:1.2,orbitRadius:120},
 };
 
 

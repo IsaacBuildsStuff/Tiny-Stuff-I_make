@@ -1,8 +1,8 @@
 /* ── JSON IDE ─────────────────────────────────────────────── */
-.json-ide { display: flex; height: 100%; }
-.json-lpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; }
-.json-cmid { flex: 1; overflow-y: auto; padding: 14px; min-width: 0; }
-.json-rpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; }
+.json-ide { display: flex; height: 100%; flex-wrap: nowrap; min-width: 0; }
+.json-lpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; min-width: 200px; }
+.json-cmid { flex: 1; overflow-y: auto; padding: 14px; min-width: 0; display: flex; flex-direction: column; }
+.json-rpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; min-width: 200px; }
 .rk-bar-bg { height: 4px; background: #040609; border-radius: 2px; overflow: hidden; }
 .rk-bar-fg { height: 100%; background: var(--acc); border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 4px var(--acc); }
 .json-litem { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 2px; cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }

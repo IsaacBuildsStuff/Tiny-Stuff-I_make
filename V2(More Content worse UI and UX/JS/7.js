@@ -5,9 +5,10 @@
 const PROGRESSION_KEY = 'uf_progression_v1';
 const MISSIONS_KEY = 'uf_missions_v1';
 const UNITS_KEY = 'uf_units_v1';
+const PRESTIGE_KEY = 'uf_prestige_v1';
 
-// XP needed to reach next level (cumulative)
-const XP_TABLE = [
+// XP needed to reach next level (cumulative) - will be adjusted based on prestige
+const BASE_XP_TABLE = [
   0,      // L1: start
   100,    // L2: first win
   250,    // L3: learning
@@ -19,6 +20,326 @@ const XP_TABLE = [
   2500,   // L9: grandmaster
   3200,   // L10: forge lord
 ];
+
+// Prestige configuration
+const PRESTIGE_CONFIG = {
+  0: {
+    name: 'NOVICE',
+    stars: 0,
+    maxLevel: 2,
+    unlockedUnits: ['pyros', 'ironclad', 'oortho'],
+    lessonSet: null,
+    features: {
+      roster: true,
+      editor: false,
+      editorIdentity: false,
+      editorVisuals: false,
+      editorMagic: false,
+      editorMagicHalf: false,
+      editorMelee: false,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  1: {
+    name: 'APPRENTICE',
+    stars: 1,
+    maxLevel: 3,
+    unlockedUnits: ['glacius'],
+    lessonSet: null,
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: false,
+      editorMagic: false,
+      editorMagicHalf: false,
+      editorMelee: false,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  2: {
+    name: 'INITIATE',
+    stars: 2,
+    maxLevel: 4,
+    unlockedUnits: ['shade'],
+    lessonSet: 'prestige_2',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: false,
+      editorMagicHalf: false,
+      editorMelee: false,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  3: {
+    name: 'ADEPT',
+    stars: 3,
+    maxLevel: 5,
+    unlockedUnits: ['rifter'],
+    lessonSet: 'prestige_3',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: false,
+      editorMagicHalf: true,
+      editorMelee: false,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  4: {
+    name: 'VETERAN',
+    stars: 4,
+    maxLevel: 6,
+    unlockedUnits: ['templar'],
+    lessonSet: 'prestige_4',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: false,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  5: {
+    name: 'EXPERT',
+    stars: 5,
+    maxLevel: 7,
+    unlockedUnits: ['voidmage'],
+    lessonSet: 'prestige_5',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: false,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  6: {
+    name: 'MASTER',
+    stars: 6,
+    maxLevel: 8,
+    unlockedUnits: ['stormcaller'],
+    lessonSet: 'prestige_6',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: true,
+      exportJson: false,
+      newUnit: false,
+    }
+  },
+  7: {
+    name: 'GRANDMASTER',
+    stars: 7,
+    maxLevel: 9,
+    unlockedUnits: ['warden'],
+    lessonSet: 'prestige_7',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: true,
+      exportJson: true,
+      newUnit: false,
+    }
+  },
+  8: {
+    name: 'ARCHMAGE',
+    stars: 8,
+    maxLevel: 10,
+    unlockedUnits: ['hexblade'],
+    lessonSet: 'prestige_8',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: false,
+      editorBehavior: false,
+      passives: true,
+      exportJson: true,
+      newUnit: false,
+    }
+  },
+  9: {
+    name: 'FORGE LORD',
+    stars: 9,
+    maxLevel: 10,
+    unlockedUnits: ['gunner'],
+    lessonSet: 'prestige_9',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: true,
+      editorBehavior: false,
+      passives: true,
+      exportJson: true,
+      newUnit: true,
+    }
+  },
+  10: {
+    name: 'LEGEND',
+    stars: 10,
+    maxLevel: 10,
+    unlockedUnits: ['berserker'],
+    lessonSet: 'prestige_10',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: true,
+      editorBehavior: false,
+      passives: true,
+      exportJson: true,
+      newUnit: true,
+    }
+  },
+  11: {
+    name: 'MYTHIC',
+    stars: 11,
+    maxLevel: 10,
+    unlockedUnits: ['tempus'],
+    lessonSet: 'prestige_11',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: true,
+      editorBehavior: true,
+      passives: true,
+      exportJson: true,
+      newUnit: true,
+    }
+  },
+  12: {
+    name: 'TRANSCENDENT',
+    stars: 12,
+    maxLevel: 10,
+    unlockedUnits: ['glitch1'],
+    lessonSet: 'prestige_12',
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: true,
+      editorBehavior: true,
+      passives: true,
+      exportJson: true,
+      newUnit: true,
+    }
+  },
+  13: {
+    name: 'ETERNAL',
+    stars: 13,
+    maxLevel: 10,
+    unlockedUnits: ['glitch2'],
+    lessonSet: null,
+    features: {
+      roster: true,
+      editor: true,
+      editorIdentity: true,
+      editorVisuals: true,
+      editorMagic: true,
+      editorMagicHalf: false,
+      editorMelee: true,
+      editorRanged: true,
+      editorBehavior: true,
+      passives: true,
+      exportJson: true,
+      newUnit: true,
+    }
+  }
+};
+
+// Lesson sets per prestige (separate lists for flexible sizing)
+const LESSON_SETS = {
+  prestige_2: [],  // 12 lessons
+  prestige_3: [],  // 12 lessons
+  prestige_4: [],  // 12 lessons
+  prestige_5: [],  // 12 lessons
+  prestige_6: [],  // 12 lessons
+  prestige_7: [],  // 12 lessons
+  prestige_8: [],  // 12 lessons
+  prestige_9: [],  // 12 lessons
+  prestige_10: [], // 12 lessons
+  prestige_11: [], // 12 lessons
+  prestige_12: [], // 24 lessons
+};
+
+// Get XP table based on current prestige level
+function getXPTable(prestigeLevel) {
+  const config = PRESTIGE_CONFIG[prestigeLevel] || PRESTIGE_CONFIG[0];
+  const maxLevel = config.maxLevel;
+  return BASE_XP_TABLE.slice(0, maxLevel + 1);
+}
 
 const RANK_TITLES = [
   'NOVICE', 'APPRENTICE', 'INITIATE', 'ADEPT', 'VETERAN',
@@ -135,6 +456,7 @@ const MISSIONS = [
 ];
 
 const Progression = {
+  prestigeLevel: 0,
   level: 1,
   xp: 0,
   stats: {
@@ -148,9 +470,73 @@ const Progression = {
   missionsCompleted: new Set(),
   _levelUpPending: false,
 
+  get currentConfig() {
+    return PRESTIGE_CONFIG[this.prestigeLevel] || PRESTIGE_CONFIG[0];
+  },
+
+  get maxLevel() {
+    return this.currentConfig.maxLevel;
+  },
+
+  get xpTable() {
+    return getXPTable(this.prestigeLevel);
+  },
+
+  get stars() {
+    return this.currentConfig.stars;
+  },
+
+  get prestigeName() {
+    return this.currentConfig.name;
+  },
+
+  canPrestige() {
+    return this.level >= this.maxLevel;
+  },
+
+  prestige() {
+    if (!this.canPrestige() || this.prestigeLevel >= 13) return false;
+    
+    this.prestigeLevel++;
+    this.level = 1;
+    this.xp = 0;
+    this.stats = {
+      battlesWon: 0,
+      battlesLost: 0,
+      battlesTotal: 0,
+      oorthoDefeats: 0,
+      challengesCompleted: new Set(),
+      unitsUsed: new Set(),
+    };
+    this.missionsCompleted.clear();
+    
+    this.save();
+    return true;
+  },
+
+  getUnlockedUnits() {
+    const unlocked = new Set();
+    for (let i = 0; i <= this.prestigeLevel; i++) {
+      const config = PRESTIGE_CONFIG[i];
+      if (config && config.unlockedUnits) {
+        config.unlockedUnits.forEach(u => unlocked.add(u));
+      }
+    }
+    return Array.from(unlocked);
+  },
+
+  isFeatureUnlocked(feature) {
+    return this.currentConfig.features[feature] === true;
+  },
+
+  getAvailableLessonSet() {
+    return this.currentConfig.lessonSet;
+  },
+
   load() {
     try {
       const data = JSON.parse(localStorage.getItem(PROGRESSION_KEY) || '{}');
+      if (data.prestigeLevel !== undefined) this.prestigeLevel = data.prestigeLevel;
       if (data.level) this.level = data.level;
       if (data.xp !== undefined) this.xp = data.xp;
       if (data.stats) {
@@ -175,6 +561,7 @@ const Progression = {
   save() {
     try {
       localStorage.setItem(PROGRESSION_KEY, JSON.stringify({
+        prestigeLevel: this.prestigeLevel,
         level: this.level,
         xp: this.xp,
         stats: {
@@ -198,13 +585,15 @@ const Progression = {
   },
 
   xpToNext() {
-    if (this.level >= XP_TABLE.length) return 0;
-    return XP_TABLE[this.level] - this.xp;
+    const table = this.xpTable;
+    if (this.level >= table.length) return 0;
+    return table[this.level] - this.xp;
   },
 
   xpForCurrent() {
+    const table = this.xpTable;
     if (this.level <= 1) return this.xp;
-    return this.xp - XP_TABLE[this.level - 1];
+    return this.xp - table[this.level - 1];
   },
 
   xpRange() {

@@ -29,14 +29,19 @@ function renderIntelPanel(){
 // ================================================================
 function nav(active){
   const jRank=JsonFreedom.getRank();
+  const prestigeStars = typeof Progression !== 'undefined' ? '★'.repeat(Progression.stars) : '';
+  const prestigeName = typeof Progression !== 'undefined' ? Progression.prestigeName : 'NOVICE';
+  const canEditor = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('editor') : true;
+  const canJson = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('editorIdentity') : true;
+  
   const tabs=[
     {id:'battle',  icon:'\u2694', label:'BATTLE',   desc:'Watch units fight'},
     {id:'roster',  icon:'\u25C8', label:'ROSTER',   desc:'Browse all units'},
-    {id:'editor',  icon:'\u2699', label:'EDITOR',   desc:'Customize a unit'},
+    {id:'editor',  icon:'\u2699', label:'EDITOR',   desc:'Customize a unit', locked:!canEditor},
     {id:'tutorial',icon:'\uD83D\uDCDA',label:'TUTORIAL', desc:'Learn the basics'},
-    {id:'json',    icon:'\u26A1', label:'JSON IDE', desc:['LOCKED','READER','STUDENT','CODER','MASTER'][jRank]},
+    {id:'json',    icon:'\u26A1', label:'JSON IDE', desc:['LOCKED','READER','STUDENT','CODER','MASTER'][jRank], locked:!canJson},
   ];
-  return`<div class="hdr"><div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;color:var(--acc);letter-spacing:4px;font-weight:bold;line-height:1">UNIT FORGE</span><span style="font-size:7px;color:var(--dim);letter-spacing:2px">COMBAT SIMULATOR</span></div><div style="margin-left:auto;display:flex;gap:5px;align-items:center">${tabs.map(t=>`<button class="nav-btn ${active===t.id?'on':''}" onclick="setTab('${t.id}')"><span class="nb-icon">${t.icon}</span><span class="nb-label">${t.label}</span><span class="nb-desc">${t.desc}</span></button>`).join('')}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div>${typeof progressionBarHTML==='function'?progressionBarHTML():''}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div><button onclick="showHelp()" style="background:transparent;border:1px solid #1a2040;color:#3a4a70;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px">? HOW TO PLAY</button></div></div>`;
+  return`<div class="hdr"><div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;color:var(--acc);letter-spacing:4px;font-weight:bold;line-height:1">UNIT FORGE</span><span style="font-size:7px;color:var(--dim);letter-spacing:2px">COMBAT SIMULATOR</span></div><div style="margin-left:auto;display:flex;gap:5px;align-items:center">${tabs.map(t=>t.locked?`<button class="nav-btn locked" disabled style="opacity:.5;cursor:not-allowed"><span class="nb-icon">\uD83D\uDD12</span><span class="nb-label">${t.label}</span><span class="nb-desc">LOCKED</span></button>`:`<button class="nav-btn ${active===t.id?'on':''}" onclick="setTab('${t.id}')"><span class="nb-icon">${t.icon}</span><span class="nb-label">${t.label}</span><span class="nb-desc">${t.desc}</span></button>`).join('')}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div>${typeof progressionBarHTML==='function'?progressionBarHTML():''}${prestigeStars?`<div style="display:flex;flex-direction:column;align-items:center;margin:0 8px"><span style="font-size:10px;color:#ffcc44;letter-spacing:1px">${prestigeStars}</span><span style="font-size:6px;color:var(--dim);letter-spacing:1px">${prestigeName}</span></div>`:''}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div><button onclick="showHelp()" style="background:transparent;border:1px solid #1a2040;color:#3a4a70;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px">? HOW TO PLAY</button></div></div>`;
 }
 
 function showHelp(){

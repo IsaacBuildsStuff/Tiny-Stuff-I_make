@@ -321,17 +321,17 @@ const PRESTIGE_CONFIG = {
 
 // Lesson sets per prestige (separate lists for flexible sizing)
 const LESSON_SETS = {
-  prestige_2: [],  // 12 lessons
-  prestige_3: [],  // 12 lessons
-  prestige_4: [],  // 12 lessons
-  prestige_5: [],  // 12 lessons
-  prestige_6: [],  // 12 lessons
-  prestige_7: [],  // 12 lessons
-  prestige_8: [],  // 12 lessons
-  prestige_9: [],  // 12 lessons
-  prestige_10: [], // 12 lessons
-  prestige_11: [], // 12 lessons
-  prestige_12: [], // 24 lessons
+  prestige_2: ['intro', 'objects', 'types', 'arrays', 'nested', 'errors', 'schema', 'paths', 'spells', 'modify', 'ai_config', 'import'],  // 12 lessons
+  prestige_3: ['p3_01', 'p3_02', 'p3_03', 'p3_04', 'p3_05', 'p3_06', 'p3_07', 'p3_08', 'p3_09', 'p3_10', 'p3_11', 'p3_12'],  // 12 lessons
+  prestige_4: ['p4_01', 'p4_02', 'p4_03', 'p4_04', 'p4_05', 'p4_06', 'p4_07', 'p4_08', 'p4_09', 'p4_10', 'p4_11', 'p4_12'],  // 12 lessons
+  prestige_5: ['p5_01', 'p5_02', 'p5_03', 'p5_04', 'p5_05', 'p5_06', 'p5_07', 'p5_08', 'p5_09', 'p5_10', 'p5_11', 'p5_12'],  // 12 lessons
+  prestige_6: ['p6_01', 'p6_02', 'p6_03', 'p6_04', 'p6_05', 'p6_06', 'p6_07', 'p6_08', 'p6_09', 'p6_10', 'p6_11', 'p6_12'],  // 12 lessons
+  prestige_7: ['p7_01', 'p7_02', 'p7_03', 'p7_04', 'p7_05', 'p7_06', 'p7_07', 'p7_08', 'p7_09', 'p7_10', 'p7_11', 'p7_12'],  // 12 lessons
+  prestige_8: ['p8_01', 'p8_02', 'p8_03', 'p8_04', 'p8_05', 'p8_06', 'p8_07', 'p8_08', 'p8_09', 'p8_10', 'p8_11', 'p8_12'],  // 12 lessons
+  prestige_9: ['p9_01', 'p9_02', 'p9_03', 'p9_04', 'p9_05', 'p9_06', 'p9_07', 'p9_08', 'p9_09', 'p9_10', 'p9_11', 'p9_12'],  // 12 lessons
+  prestige_10: ['p10_01', 'p10_02', 'p10_03', 'p10_04', 'p10_05', 'p10_06', 'p10_07', 'p10_08', 'p10_09', 'p10_10', 'p10_11', 'p10_12'], // 12 lessons
+  prestige_11: ['p11_01', 'p11_02', 'p11_03', 'p11_04', 'p11_05', 'p11_06', 'p11_07', 'p11_08', 'p11_09', 'p11_10', 'p11_11', 'p11_12'], // 12 lessons
+  prestige_12: ['p12_01', 'p12_02', 'p12_03', 'p12_04', 'p12_05', 'p12_06', 'p12_07', 'p12_08', 'p12_09', 'p12_10', 'p12_11', 'p12_12', 'p12_13', 'p12_14', 'p12_15', 'p12_16', 'p12_17', 'p12_18', 'p12_19', 'p12_20', 'p12_21', 'p12_22', 'p12_23', 'p12_24'], // 24 lessons
 };
 
 // Get XP table based on current prestige level
@@ -531,6 +531,17 @@ const Progression = {
 
   getAvailableLessonSet() {
     return this.currentConfig.lessonSet;
+  },
+
+  getUnlockedLessons() {
+    const unlocked = new Set();
+    for (let i = 0; i <= this.prestigeLevel; i++) {
+      const config = PRESTIGE_CONFIG[i];
+      if (config && config.lessonSet && LESSON_SETS[config.lessonSet]) {
+        LESSON_SETS[config.lessonSet].forEach(lessonId => unlocked.add(lessonId));
+      }
+    }
+    return Array.from(unlocked);
   },
 
   applyPrestigeToUnits() {
@@ -823,6 +834,26 @@ const Progression = {
     localStorage.removeItem(PROGRESSION_KEY);
     localStorage.removeItem(MISSIONS_KEY);
   },
+
+  fullReset() {
+    this.prestigeLevel = 0;
+    this.level = 1;
+    this.xp = 0;
+    this.stats = {
+      battlesWon: 0,
+      battlesLost: 0,
+      battlesTotal: 0,
+      oorthoDefeats: 0,
+      challengesCompleted: new Set(),
+      unitsUsed: new Set(),
+    };
+    this.missionsCompleted = new Set();
+    localStorage.removeItem(PROGRESSION_KEY);
+    localStorage.removeItem(MISSIONS_KEY);
+    localStorage.removeItem(UNITS_KEY);
+    JsonFreedom.reset();
+    this.applyPrestigeToUnits();
+  },
 };
 
 // Build progression bar HTML for nav injection
@@ -902,6 +933,87 @@ function showMissions() {
     <div style="overflow-y:auto;flex:1">${missionRows}</div>
     <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
       <span style="font-size:8px;color:var(--dim)">${done === total ? '\u2605 ALL MISSIONS COMPLETE — You are a Forge Lord!' : (total - done) + ' missions remaining'}</span>
+      <div style="display:flex;gap:8px">
+        <button class="c-btn" style="background:transparent;border:1px solid #ff4455;color:#ff4455;padding:6px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px" onclick="Progression.fullReset();location.reload()">FULL RESET</button>
+        <button class="c-btn" style="background:var(--acc);color:#fff;border:none;padding:6px 16px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px" onclick="document.getElementById('modal').style.display='none'">CLOSE</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+// Prestige menu overlay
+function showPrestigeMenu() {
+  const el = document.getElementById('modal');
+  if (!el) return;
+  const current = Progression.prestigeLevel;
+  const unlockedUnits = Progression.getUnlockedUnits();
+  const unlockedLessons = Progression.getUnlockedLessons();
+
+  const tiersHtml = Object.entries(PRESTIGE_CONFIG).map(([tier, config]) => {
+    const tierNum = parseInt(tier);
+    const isUnlocked = tierNum <= current;
+    const isCurrent = tierNum === current;
+    const isNext = tierNum === current + 1;
+    const canPrestigeTo = Progression.canPrestige() && isNext;
+
+    const unitsHtml = config.unlockedUnits.map(u => {
+      const def = getDef(u);
+      return def ? `<span style="color:${def.color};font-weight:bold">${def.name}</span>` : u;
+    }).join(', ');
+
+    const featuresHtml = Object.entries(config.features)
+      .filter(([k, v]) => v)
+      .map(([k]) => ({
+        roster:'Roster',editor:'Editor',editorIdentity:'Identity',editorVisuals:'Visuals',
+        editorMagic:'Full Magic',editorMagicHalf:'Magic (Basic)',editorMelee:'Melee',
+        editorRanged:'Ranged',editorBehavior:'Behavior',passives:'Passives',
+        exportJson:'Export JSON',newUnit:'New Unit'
+      }[k] || k))
+      .join(', ');
+
+    return `<div class="prestige-tier ${isCurrent ? 'current' : ''} ${isUnlocked ? 'unlocked' : 'locked'}" style="
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border: 1px solid ${isCurrent ? '#ffcc44' : isUnlocked ? 'var(--border)' : '#1a1a2a'};
+      border-radius: 4px;
+      background: ${isCurrent ? 'rgba(255,204,68,0.08)' : isUnlocked ? 'var(--panel)' : '#0a0a12'};
+      ${isCurrent ? 'box-shadow: 0 0 12px rgba(255,204,68,0.15);' : ''}
+    ">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+        <span style="font-size:14px;color:${isUnlocked ? '#ffcc44' : '#3a3a4a'}">${'★'.repeat(tierNum) || '–'}</span>
+        <span style="font-size:11px;color:${isUnlocked ? 'var(--text)' : 'var(--dim)'};font-weight:bold;letter-spacing:2px">${config.name}</span>
+        ${isCurrent ? '<span style="margin-left:auto;font-size:7px;color:#ffcc44;background:#1a1200;padding:2px 6px;border-radius:2px;border:1px solid #ffcc4444">CURRENT</span>' : ''}
+        ${canPrestigeTo ? '<button onclick="Progression.doPrestige()" style="margin-left:auto;background:linear-gradient(135deg,#201400,#301c00);border:1px solid #ffcc44;color:#ffcc44;padding:4px 10px;font-size:8px;font-family:monospace;border-radius:2px;cursor:pointer;font-weight:bold">★ ASCEND</button>' : ''}
+      </div>
+      <div style="font-size:8px;color:var(--dim);margin-bottom:4px">Level Cap: ${config.maxLevel} · Stars: ${config.stars}</div>
+      ${config.unlockedUnits.length ? `<div style="font-size:8px;color:${isUnlocked ? 'var(--text)' : 'var(--dim)'};margin-bottom:4px"><span style="color:#8899ff">Unit:</span> ${unitsHtml}</div>` : ''}
+      ${featuresHtml ? `<div style="font-size:8px;color:${isUnlocked ? 'var(--text)' : 'var(--dim)'}"><span style="color:#44aaff">Features:</span> ${featuresHtml}</div>` : ''}
+    </div>`;
+  }).join('');
+
+  el.style.display = 'flex';
+  el.innerHTML = `<div class="m-box" style="border:2px solid #ffcc44;width:620px;max-height:90vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 80px rgba(255,204,68,.25)">
+    <div class="m-hdr" style="background:linear-gradient(90deg,#1a1200,#201800);border-bottom:2px solid #ffcc44">
+      <div class="dot" style="width:10px;height:10px;background:#ffcc44;box-shadow:0 0 12px #ffcc44"></div>
+      <span style="color:#ffcc44;font-size:12px;font-weight:bold;letter-spacing:3px">PRESTIGE TIERS</span>
+      <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
+    </div>
+    <div style="padding:16px 18px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;align-items:center;gap:16px">
+        <div style="text-align:center">
+          <div style="font-size:36px;color:#ffcc44;font-weight:bold;line-height:1;text-shadow:0 0 20px rgba(255,204,68,0.5)">${'★'.repeat(current) || '–'}</div>
+          <div style="font-size:9px;color:var(--dim);letter-spacing:1px;margin-top:4px">${Progression.prestigeName}</div>
+        </div>
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--text);margin-bottom:4px">Current Prestige Level: <span style="color:#ffcc44;font-weight:bold">${current}</span> / 13</div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:2px">Level: ${Progression.level} / ${Progression.maxLevel}</div>
+          <div style="font-size:8px;color:var(--dim)">XP: ${Progression.xp} / ${Progression.xpRange().next}</div>
+        </div>
+      </div>
+    </div>
+    <div style="overflow-y:auto;flex:1;padding:16px 18px">${tiersHtml}</div>
+    <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <button class="c-btn" style="background:transparent;border:1px solid #ff4455;color:#ff4455;padding:6px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px" onclick="Progression.fullReset();location.reload()">FULL RESET</button>
       <button class="c-btn" style="background:var(--acc);color:#fff;border:none;padding:6px 16px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px" onclick="document.getElementById('modal').style.display='none'">CLOSE</button>
     </div>
   </div>`;

@@ -124,3 +124,13 @@ body {
 .p11 { --pt: #88ff44; }
 .p12 { --pt: #ff44cc; }
 .p13 { --pt: #ffffff; }
+
+/* ── DEV TAB FLICKER ───────────────────────────────────────────── */
+@keyframes devFlicker {
+  0%, 49% { background: #080808; }
+  50%, 100% { background: #1a0a2a; }
+}
+
+#dev-side-tab {
+  animation: devFlicker 2s infinite;
+}

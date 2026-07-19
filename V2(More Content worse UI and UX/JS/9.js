@@ -33,15 +33,16 @@ function nav(active){
   const prestigeName = typeof Progression !== 'undefined' ? Progression.prestigeName : 'NOVICE';
   const canEditor = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('editor') : true;
   const canJson = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('jsonIde') : true;
-  
+  const devUnlocked = typeof DevPanel !== 'undefined' ? DevPanel.isUnlocked() : false;
+
   const tabs=[
     {id:'battle',  icon:'\u2694', label:'BATTLE',   desc:'Watch units fight'},
     {id:'roster',  icon:'\u25C8', label:'ROSTER',   desc:'Browse all units'},
     {id:'editor',  icon:'\u2699', label:'EDITOR',   desc:'Customize a unit', locked:!canEditor},
-    {id:'tutorial',icon:'\uD83D\uDCDA',label:'TUTORIAL', desc:'Learn the basics'},
+    {id:'lessons', icon:'\uD83D\uDCDA',label:'LESSONS', desc:'Learn JSON'},
     {id:'json',    icon:'\u26A1', label:'JSON IDE', desc:['LOCKED','READER','STUDENT','CODER','MASTER'][jRank], locked:!canJson},
   ];
-  return`<div class="hdr"><div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;color:var(--acc);letter-spacing:4px;font-weight:bold;line-height:1">UNIT FORGE</span><span style="font-size:7px;color:var(--dim);letter-spacing:2px">COMBAT SIMULATOR</span></div><div style="margin-left:auto;display:flex;gap:5px;align-items:center">${tabs.map(t=>t.locked?`<button class="nav-btn locked" disabled style="opacity:.5;cursor:not-allowed"><span class="nb-icon">\uD83D\uDD12</span><span class="nb-label">${t.label}</span><span class="nb-desc">LOCKED</span></button>`:`<button class="nav-btn ${active===t.id?'on':''}" onclick="setTab('${t.id}')"><span class="nb-icon">${t.icon}</span><span class="nb-label">${t.label}</span><span class="nb-desc">${t.desc}</span></button>`).join('')}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div>${typeof progressionBarHTML==='function'?progressionBarHTML():''}${prestigeStars?`<div style="display:flex;flex-direction:column;align-items:center;margin:0 8px"><span style="font-size:10px;color:#ffcc44;letter-spacing:1px">${prestigeStars}</span><span style="font-size:6px;color:var(--dim);letter-spacing:1px">${prestigeName}</span></div>`:''}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div><button onclick="showHelp()" style="background:transparent;border:1px solid #1a2040;color:#3a4a70;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px">? HOW TO PLAY</button></div></div>`;
+  return`<div class="hdr"><div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;color:var(--acc);letter-spacing:4px;font-weight:bold;line-height:1">UNIT FORGE</span><span style="font-size:7px;color:var(--dim);letter-spacing:2px">COMBAT SIMULATOR</span></div><div style="margin-left:auto;display:flex;gap:5px;align-items:center">${tabs.map(t=>t.locked?`<button class="nav-btn locked" disabled style="opacity:.5;cursor:not-allowed"><span class="nb-icon">\uD83D\uDD12</span><span class="nb-label">${t.label}</span><span class="nb-desc">LOCKED</span></button>`:`<button class="nav-btn ${active===t.id?'on':''}" onclick="setTab('${t.id}')"><span class="nb-icon">${t.icon}</span><span class="nb-label">${t.label}</span><span class="nb-desc">${t.desc}</span></button>`).join('')}<div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div>${typeof progressionBarHTML==='function'?progressionBarHTML():''}${devUnlocked?`<button onclick="typeof DevPanel==='object'?DevPanel.showDevPanel():null" style="background:transparent;border:1px solid #ff44ff44;color:#ff44ff;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px;margin:0 4px" title="Dev Tools">⚙ DEV</button>`:''}<button onclick="typeof showPrestigeMenu==='function'?showPrestigeMenu():null" style="background:transparent;border:1px solid #ffcc4444;color:#ffcc44;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px;margin:0 4px" title="View Prestige Tiers">★ PRESTIGE</button><div style="width:1px;height:36px;background:var(--border);margin:0 3px"></div><button onclick="showHelp()" style="background:transparent;border:1px solid #1a2040;color:#3a4a70;padding:4px 10px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer;transition:all .15s;letter-spacing:.5px">? HOW TO PLAY</button></div></div>`;
 }
 
 function showHelp(){
@@ -51,6 +52,24 @@ function showHelp(){
 }
 
 function dismissOnboard(){localStorage.setItem('cf_ob_v6','1');const el=document.getElementById('ob');if(el)el.classList.add('hidden');}
+
+function renderLessons(){
+  const completed=JsonFreedom.getCompleted();
+  const rank=JsonFreedom.getRank();
+  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
+  const availableLessons = JSON_LESSONS.filter(l => unlockedLessons.includes(l.id));
+  const n=completed.size,total=availableLessons.length;
+  const pct=Math.round((n/total)*100);
+  const lesson=availableLessons.find(l=>l.id===JIS.lesson)||availableLessons[0]||JSON_LESSONS[0];
+  const llistHtml=availableLessons.map(l=>{
+    const done=completed.has(l.id),active=l.id===JIS.lesson;
+    const icon=done?'\u2713':(active?'\u25B8':l.icon);
+    const col=done?'#44ff88':(active?'var(--acc)':'var(--dim)');
+    return`<div class="json-litem${active?' active':''}${done?' done':''}" onclick="jsonGoLesson('${l.id}')"><span class="json-lnum" style="color:${col}">${icon}</span><span class="json-ltitle">${l.title}</span></div>`;
+  }).join('');
+  const lc=lesson.render();
+  document.getElementById('app').innerHTML=`${nav('lessons')}<div class="content"><div class="json-v"><div style="display:flex;align-items:center;gap:12px;margin-bottom:14px"><span style="font-size:13px;color:var(--text);letter-spacing:2px">JSON LESSONS</span><span style="font-size:9px;color:var(--dim)">${n}/${total} completed (${pct}%)</span></div><div style="display:flex;gap:16px"><div class="json-llist">${llistHtml}</div><div class="json-main">${lc}</div></div></div></div>`;
+}
 function renderBattle(){
   const d0=getDef(S.selected[0]),d1=getDef(S.selected[1]);
   const showOB=!localStorage.getItem('cf_ob_v6');
@@ -173,9 +192,13 @@ function setTab(t){
   S.tab=t;
   if(t==='battle')renderBattle();
   else if(t==='roster')renderRoster();
-  else if(t==='tutorial')renderTutorial();
+  else if(t==='lessons')renderLessons();
   else if(t==='json')renderJsonIde();
   else renderEditor();
+  // Add dev side tab
+  const existingTab = document.getElementById('dev-side-tab');
+  if(existingTab) existingTab.remove();
+  document.body.insertAdjacentHTML('beforeend', typeof renderDevSideTab==='function'?renderDevSideTab():'');
 }
 function selectUnit(side,id){S.selected[side]=id;restartGame();const el=document.getElementById('panel-'+side);if(el)el.innerHTML=panelHTML(side);}
 function togglePause(){S.paused=!S.paused;const b=document.getElementById('pbtn');if(b){b.textContent=S.paused?'\u25B6 RESUME':'\u23F8 PAUSE';b.classList.toggle('on',S.paused);}}
@@ -201,6 +224,201 @@ function showLockedMsg(tabId,needed){
     +'<div style="font-size:9px;color:var(--dim)">Requires Prestige '+needed+' '+'\u2605'.repeat(needed||1)+'</div>';
   document.body.appendChild(t);
   setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},1800);
+}
+
+// ================================================================
+// DEV PANEL SYSTEM
+// ================================================================
+const DEV_UNLOCK_KEY = '__uf_dev_unlock_v1';
+const DEV_PASSWORD = 'D3Vm0d3';
+
+const DevPanel = {
+  isUnlocked() {
+    try {
+      return localStorage.getItem(DEV_UNLOCK_KEY) === 'true';
+    } catch {
+      return false;
+    }
+  },
+
+  unlock() {
+    localStorage.setItem(DEV_UNLOCK_KEY, 'true');
+  },
+
+  lock() {
+    localStorage.removeItem(DEV_UNLOCK_KEY);
+  },
+
+  toggle() {
+    if (this.isUnlocked()) {
+      this.lock();
+    } else {
+      this.unlock();
+    }
+  },
+
+  showHiddenInput() {
+    const el = document.getElementById('modal');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="m-box" style="border:1px solid #1a2040;width:320px;box-shadow:0 0 40px rgba(0,0,0,.5)">
+      <div class="m-hdr" style="background:#0a0a12;border-bottom:1px solid #1a2040">
+        <span style="color:var(--dim);font-size:10px;letter-spacing:2px">DEV ACCESS</span>
+        <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:12px;cursor:pointer">\u2715</button>
+      </div>
+      <div class="m-body" style="padding:16px;text-align:center">
+        <input type="password" id="dev-password-input" placeholder="Enter password" style="width:100%;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:8px;font-size:10px;font-family:monospace;border-radius:3px;margin-bottom:12px" onkeydown="if(event.key==='Enter')DevPanel.checkPassword()">
+        <button onclick="DevPanel.checkPassword()" style="background:#1a2040;border:1px solid var(--border);color:var(--text);padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK</button>
+      </div>
+    </div>`;
+    setTimeout(() => {
+      const input = document.getElementById('dev-password-input');
+      if (input) input.focus();
+    }, 100);
+  },
+
+  checkPassword() {
+    const input = document.getElementById('dev-password-input');
+    if (!input) return;
+    if (input.value === DEV_PASSWORD) {
+      this.unlock();
+      document.getElementById('modal').style.display = 'none';
+      this.showDevPanel();
+    } else {
+      input.style.borderColor = '#ff4455';
+      input.value = '';
+      input.placeholder = 'Incorrect password';
+      setTimeout(() => {
+        input.style.borderColor = '#1a2040';
+        input.placeholder = 'Enter password';
+      }, 1500);
+    }
+  },
+
+  showDevPanel() {
+    const el = document.getElementById('modal');
+    if (!el) return;
+    const unlockedUnits = typeof Progression !== 'undefined' ? Progression.getUnlockedUnits() : [];
+    const allUnits = S.units.map(u => u.id);
+
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="m-box" style="border:2px solid #ff44ff;width:700px;max-height:90vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 80px rgba(255,68,255,.25)">
+      <div class="m-hdr" style="background:linear-gradient(90deg,#1a001a,#200020);border-bottom:2px solid #ff44ff">
+        <div class="dot" style="width:10px;height:10px;background:#ff44ff;box-shadow:0 0 12px #ff44ff"></div>
+        <span style="color:#ff44ff;font-size:12px;font-weight:bold;letter-spacing:3px">DEV TOOLS</span>
+        <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
+      </div>
+      <div style="padding:16px 18px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <button onclick="DevPanel.unlockAllUnits()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK ALL UNITS</button>
+          <button onclick="DevPanel.setMaxPrestige()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">MAX PRESTIGE</button>
+          <button onclick="DevPanel.addXP(1000)" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">+1000 XP</button>
+          <button onclick="DevPanel.completeAllMissions()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">ALL MISSIONS</button>
+          <button onclick="DevPanel.completeAllLessons()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">ALL LESSONS</button>
+          <button onclick="DevPanel.toggleGodMode()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">TOGGLE GOD MODE</button>
+        </div>
+      </div>
+      <div style="overflow-y:auto;flex:1;padding:16px 18px">
+        <div style="font-size:9px;color:var(--dim);margin-bottom:12px">CURRENT STATE</div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
+            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">PRESTIGE</div>
+            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.prestigeLevel : 'N/A'}</div>
+          </div>
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
+            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">LEVEL</div>
+            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.level : 'N/A'}</div>
+          </div>
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
+            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">XP</div>
+            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.xp : 'N/A'}</div>
+          </div>
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
+            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">UNITS</div>
+            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${S.units.length}</div>
+          </div>
+        </div>
+        <div style="font-size:9px;color:var(--dim);margin-bottom:8px">UNIT LIST</div>
+        <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px;max-height:200px;overflow-y:auto">
+          ${S.units.map(u => `<div style="font-size:8px;color:${u.color};padding:2px 0">${u.id} - ${u.name}</div>`).join('')}
+        </div>
+      </div>
+      <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+        <button onclick="DevPanel.lock();document.getElementById('modal').style.display='none';if(typeof renderBattle==='function')renderBattle()" style="background:transparent;border:1px solid #ff4455;color:#ff4455;padding:6px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px">LOCK DEV PANEL</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="background:var(--acc);color:#fff;border:none;padding:6px 16px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px">CLOSE</button>
+      </div>
+    </div>`;
+  },
+
+  unlockAllUnits() {
+    const allUnitIds = S.units.map(u => u.id);
+    if (typeof Progression !== 'undefined') {
+      Progression.prestigeLevel = 13;
+      Progression.applyPrestigeToUnits();
+    }
+    this.showDevPanel();
+  },
+
+  setMaxPrestige() {
+    if (typeof Progression !== 'undefined') {
+      Progression.prestigeLevel = 13;
+      Progression.level = 10;
+      Progression.xp = 3200;
+      Progression.save();
+      Progression.applyPrestigeToUnits();
+    }
+    this.showDevPanel();
+  },
+
+  addXP(amount) {
+    if (typeof Progression !== 'undefined') {
+      Progression.addXP(amount);
+      Progression.save();
+      Progression.refreshNav();
+    }
+    this.showDevPanel();
+  },
+
+  completeAllMissions() {
+    if (typeof Progression !== 'undefined') {
+      MISSIONS.forEach(m => Progression.missionsCompleted.add(m.id));
+      Progression.save();
+    }
+    this.showDevPanel();
+  },
+
+  completeAllLessons() {
+    if (typeof JsonFreedom !== 'undefined') {
+      JSON_LESSONS.forEach(l => JsonFreedom.complete(l.id));
+    }
+    this.showDevPanel();
+  },
+
+  toggleGodMode() {
+    if (typeof S !== 'undefined') {
+      S.godMode = !S.godMode;
+      if (S.godMode && S.gs) {
+        S.gs.units.forEach(u => {
+          u.hp = u.maxHp;
+          u.mana = u.def.magic.mana.max;
+        });
+      }
+    }
+    this.showDevPanel();
+  },
+};
+
+// Hidden dev trigger - small clickable area in footer
+function renderDevTrigger() {
+  if (!DevPanel.isUnlocked()) return '';
+  return `<div onclick="DevPanel.showDevPanel()" style="position:fixed;bottom:4px;right:4px;width:12px;height:12px;background:#ff44ff22;border:1px solid #ff44ff44;border-radius:2px;cursor:pointer;opacity:0.3;transition:opacity .2s" title="Dev Panel"></div>`;
+}
+
+// Small unnoticeable side tab for dev password input
+function renderDevSideTab() {
+  if (DevPanel.isUnlocked()) return '';
+  return `<div id="dev-fake-bg" style="position:fixed;bottom:10px;right:10px;width:20px;height:20px;background:#0a0a12;border:1px solid #1a1a2a;z-index:999;cursor:pointer" onclick="DevPanel.showHiddenInput()"></div>
+  <div id="dev-side-tab" style="position:fixed;bottom:10px;right:10px;width:20px;height:20px;background:#080808;border:1px solid #080808;cursor:pointer;z-index:1000;opacity:0.5" onclick="DevPanel.showHiddenInput()" title=""></div>`;
 }
 
 // ================================================================

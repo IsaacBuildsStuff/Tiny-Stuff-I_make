@@ -238,6 +238,13 @@ function jsonRunValidate(code, lessonId){
     const le=lesson.validator(parsed);
     if(le)return{ok:false,parsed,error:{message:le,line:null,col:null},lessonErr:le,errLine:null};
   }
+  // Check prestige requirement
+  if(typeof Progression !== 'undefined' && lessonId) {
+    const unlockedLessons = Progression.getUnlockedLessons();
+    if(!unlockedLessons.includes(lessonId)) {
+      return{ok:false,parsed,error:{message:'This lesson requires a higher prestige level to unlock.',line:null,col:null},lessonErr:'Requires higher prestige',errLine:null};
+    }
+  }
   return{ok:true,parsed,error:null,lessonErr:null,errLine:null};
 }
 
@@ -248,10 +255,12 @@ function renderJsonIde(){
   const completed=JsonFreedom.getCompleted();
   const rank=JsonFreedom.getRank();
   const rankObj=JSON_RANKS[rank];
-  const n=completed.size,total=JSON_LESSONS.length;
+  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
+  const availableLessons = JSON_LESSONS.filter(l => unlockedLessons.includes(l.id));
+  const n=completed.size,total=availableLessons.length;
   const pct=Math.round((n/total)*100);
-  const lesson=JSON_LESSONS.find(l=>l.id===JIS.lesson)||JSON_LESSONS[0];
-  const llistHtml=JSON_LESSONS.map(l=>{
+  const lesson=availableLessons.find(l=>l.id===JIS.lesson)||availableLessons[0]||JSON_LESSONS[0];
+  const llistHtml=availableLessons.map(l=>{
     const done=completed.has(l.id),active=l.id===JIS.lesson;
     const icon=done?'\u2713':(active?'\u25B8':l.icon);
     const col=done?'#44ff88':(active?'var(--acc)':'var(--dim)');
@@ -309,8 +318,21 @@ function renderJsonIde(){
 // ================================================================
 // IDE FUNCTIONS
 // ================================================================
-function jsonGoLesson(id){const l=JSON_LESSONS.find(x=>x.id===id);if(!l)return;JIS.lesson=id;JIS.code=l.initialCode||'';JIS.validation=null;jIdeUndo.reset(JIS.code);jsonSaveDraft(JIS.code);renderJsonIde();}
-function jsonMarkRead(id){JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();const idx=JSON_LESSONS.findIndex(l=>l.id===id);const next=JSON_LESSONS[idx+1];setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);}
+function jsonGoLesson(id){
+  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
+  if(!unlockedLessons.includes(id)) {
+    showLockedMsg('lesson', Math.floor((unlockedLessons.length / 12) + 1));
+    return;
+  }
+  const l=JSON_LESSONS.find(x=>x.id===id);if(!l)return;JIS.lesson=id;JIS.code=l.initialCode||'';JIS.validation=null;jIdeUndo.reset(JIS.code);jsonSaveDraft(JIS.code);renderJsonIde();
+}
+function jsonMarkRead(id){
+  JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();
+  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
+  const idx=JSON_LESSONS.findIndex(l=>l.id===id);
+  const next=JSON_LESSONS.find((l, i) => i > idx && unlockedLessons.includes(l.id));
+  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);
+}
 
 function jsonUpdateGutter(ta){
   const ln=document.getElementById('jln');if(!ln)return;
@@ -356,7 +378,14 @@ function jsonClr(){const ta=document.getElementById('jta');if(!ta)return;ta.valu
 function jsonRst(){const l=JSON_LESSONS.find(x=>x.id===JIS.lesson);if(!l)return;const ta=document.getElementById('jta');if(!ta)return;ta.value=l.initialCode||'';jIdeUndo.reset(ta.value);jsonTaInput(ta);}
 function jsonLoadUnit(sel){const id=sel.value;sel.value='';if(!id)return;const def=getDef(id);if(!def)return;const ta=document.getElementById('jta');if(!ta)return;ta.value=JSON.stringify(def,null,2);jIdeUndo.reset(ta.value);jsonTaInput(ta);}
 function jsonDownload(){const text=JIS.code||'';const blob=new Blob([text],{type:'application/json;charset=utf-8'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`${(JIS.lesson||'unit').replace(/[^a-z0-9_-]+/gi,'_')||'unit'}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500);}
-function jsonSubmit(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok){console.log('Submit failed:',vr);return;}const id=JIS.lesson;JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();const idx=JSON_LESSONS.findIndex(l=>l.id===id);const next=JSON_LESSONS[idx+1];setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);}
+function jsonSubmit(){
+  const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok){console.log('Submit failed:',vr);return;}
+  const id=JIS.lesson;JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();
+  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
+  const idx=JSON_LESSONS.findIndex(l=>l.id===id);
+  const next=JSON_LESSONS.find((l, i) => i > idx && unlockedLessons.includes(l.id));
+  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);
+}
 function jsonImport(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok||!vr.parsed)return;const def=mkDef(vr.parsed);const idx=S.units.findIndex(u=>u.id===def.id);if(idx>=0)S.units[idx]=def;else S.units.push(def);const alreadyDone=JsonFreedom.getCompleted().has('import');JsonFreedom.complete('import');if(!alreadyDone){showJIdToast('import');setTimeout(()=>showImportToast(def.name),1300);}else{showImportToast(def.name);}checkStoryProgress();setTimeout(()=>{JIS.validation=null;renderJsonIde();},2000);}
 function showJIdToast(completedId){
   const completed=JsonFreedom.getCompleted();const newRank=JsonFreedom.getRank();

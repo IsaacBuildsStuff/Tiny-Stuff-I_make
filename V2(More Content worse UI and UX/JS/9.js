@@ -32,7 +32,7 @@ function nav(active){
   const prestigeStars = typeof Progression !== 'undefined' ? '★'.repeat(Progression.stars) : '';
   const prestigeName = typeof Progression !== 'undefined' ? Progression.prestigeName : 'NOVICE';
   const canEditor = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('editor') : true;
-  const canJson = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('editorIdentity') : true;
+  const canJson = typeof Progression !== 'undefined' ? Progression.isFeatureUnlocked('jsonIde') : true;
   
   const tabs=[
     {id:'battle',  icon:'\u2694', label:'BATTLE',   desc:'Watch units fight'},
@@ -65,8 +65,16 @@ function renderRoster(){
 function renderEditor(){
   const def=S.editingId?getDef(S.editingId):null;
   const jRank=JsonFreedom.getRank();
-  const TABS=['IDENTITY','CORE','VISUAL','MAGIC','MELEE','RANGED','BEHAVIOR'];
+  const _fu=typeof Progression!=='undefined'?f=>Progression.isFeatureUnlocked(f):()=>true;
+  const TABS=[];
+  if(_fu('editorIdentity')||_fu('editor')){TABS.push('IDENTITY');TABS.push('CORE');}
+  if(_fu('editorVisuals'))TABS.push('VISUAL');
+  if(_fu('editorMagicHalf')||_fu('editorMagic'))TABS.push('MAGIC');
+  if(_fu('editorMelee'))TABS.push('MELEE');
+  if(_fu('editorRanged'))TABS.push('RANGED');
+  if(_fu('editorBehavior'))TABS.push('BEHAVIOR');
   if(jRank>=4)TABS.push('GLITCH');
+  if(!TABS.length)TABS.push('IDENTITY');
   const col=def?def.color:'#7766ff';
   document.getElementById('app').innerHTML=`${nav('editor')}<div class="content"><div class="editor-v"><div class="ed-left"><div class="ed-left-hdr"><div style="font-size:9px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">SELECT UNIT TO EDIT</div><button onclick="newUnit()" style="width:100%;background:#120e30;border:1px solid var(--acc);color:var(--acc);padding:5px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">+ NEW UNIT</button></div><div class="ed-left-list">${S.units.map(u=>`<div class="u-card ${u.id===S.editingId?'sel':''}" style="${u.id===S.editingId?'border-color:'+u.color+';box-shadow:0 0 7px '+u.color+'22':''}" onclick="setEditId('${u.id}')"><div style="display:flex;align-items:center;gap:5px;margin-bottom:2px"><div class="dot" style="width:8px;height:8px;background:${u.color};box-shadow:0 0 4px ${u.color}"></div><span style="font-size:10px;color:${u.color};font-weight:bold;flex:1">${u.name}</span><button class="mb" onclick="event.stopPropagation();dupUnit('${u.id}')" style="font-size:7px;padding:1px 4px">DUP</button><button class="mb" onclick="event.stopPropagation();deleteUnit('${u.id}')" style="font-size:7px;padding:1px 4px;border-color:#ff4455;color:#ff4455">DEL</button></div><div style="line-height:1.6">${mkTags(u)}</div></div>`).join('')}</div></div><div class="ed-right">${def?`<div class="ed-tabs">${TABS.map(t=>`<button class="ed-tab ${t===S.editTab?'on':''}" style="${t===S.editTab?'border-color:'+col+';color:'+col:''}" onclick="setEdTab('${t}')">${t}</button>`).join('')}<div style="margin-left:auto;display:flex;gap:6px;align-items:center"><button onclick="exportUnit('${def.id}')" style="background:transparent;border:1px solid var(--border);color:var(--dim);font-size:9px;padding:2px 9px;border-radius:3px;cursor:pointer">EXPORT JSON</button><button onclick="testUnit('${def.id}')" style="background:#120e30;border:1px solid #44ff88;color:#44ff88;font-size:9px;padding:2px 9px;border-radius:3px;cursor:pointer">TEST IN BATTLE</button></div></div><div class="ed-body" id="ed-body"></div><div class="ed-footer"><div class="dot" style="width:10px;height:10px;background:${col};box-shadow:0 0 8px ${col}"></div><span style="color:${col};font-size:11px;font-weight:bold;letter-spacing:2px">${def.name}</span><span style="font-size:9px;color:var(--dim);margin-left:8px">HP:${def.hp} SPD:${def.spd} ARM:${def.armor}</span>${S.gs && (S.selected[0] === def.id || S.selected[1] === def.id) ? `<button onclick="applyEditorToLiveBattle('${def.id}')" style="margin-left:auto;background:#041a0a;border:1px solid #44ff88;color:#44ff88;font-size:9px;padding:2px 9px;border-radius:3px;cursor:pointer">\u26A1 APPLY LIVE</button>` : `<span style="margin-left:auto;font-size:9px;color:var(--dim)">changes save instantly</span>`}</div>`:`<div style="flex:1;display:flex;align-items:center;justify-content:center;color:var(--dim);font-size:11px;letter-spacing:2px">SELECT A UNIT TO EDIT</div>`}</div></div></div>`;
   if(def)renderEditorBody();
@@ -179,6 +187,21 @@ function toggleIntel(){
 }
 function setSpeed(s){S.speed=s;document.querySelectorAll('.spd-btn').forEach((b,i)=>{b.classList.toggle('on',[.5,1,2,3][i]===s);});}
 
+
+// ================================================================
+// PRESTIGE HELPERS
+// ================================================================
+function showLockedMsg(tabId,needed){
+  const t=document.createElement('div');
+  t.className='unlock-toast';
+  t.style.cssText='border-color:#ffcc44;box-shadow:0 0 40px rgba(255,204,68,.25);padding:16px 28px';
+  const names={editor:'EDITOR',json:'JSON IDE'};
+  t.innerHTML='<div style="font-size:9px;color:#ffcc44;letter-spacing:2px;margin-bottom:6px">\uD83D\uDD12 LOCKED</div>'
+    +'<div style="font-size:11px;color:var(--text);margin-bottom:4px">'+(names[tabId]||tabId.toUpperCase())+'</div>'
+    +'<div style="font-size:9px;color:var(--dim)">Requires Prestige '+needed+' '+'\u2605'.repeat(needed||1)+'</div>';
+  document.body.appendChild(t);
+  setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},1800);
+}
 
 // ================================================================
 // GAME LOOP

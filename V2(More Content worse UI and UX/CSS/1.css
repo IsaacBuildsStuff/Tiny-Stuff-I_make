@@ -94,3 +94,33 @@ body {
   .json-rpanel { display: none; }
   .obj-compact { display: none !important; }
 }
+
+/* ── PRESTIGE SYSTEM ─────────────────────────────────────────── */
+.nav-locked { opacity: 0.45; cursor: not-allowed !important; position: relative; }
+.nav-locked:hover { border-color: #ffcc4466 !important; color: #ffcc44aa !important; background: #1a1200 !important; }
+.nav-locked .nb-desc { color: #ffcc4488 !important; }
+.prestige-stars { font-size: 10px; color: #ffcc44; letter-spacing: 1px; line-height: 1; }
+.prestige-badge { font-size: 6px; color: var(--dim); letter-spacing: 1.5px; text-transform: uppercase; }
+
+/* ── PRESTIGE LOCKED CONTENT ──────────────────────────────────── */
+.locked-tab { opacity: 0.35; pointer-events: none; position: relative; }
+.locked-tab::after { content: '🔒'; position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 10px; pointer-events: none; }
+.prestige-lock-banner { background: #0d0a00; border: 1px solid #ffcc4433; border-radius: 4px; padding: 14px 18px; text-align: center; color: #ffcc44; font-size: 10px; letter-spacing: 1px; margin: 18px 0; }
+.prestige-lock-banner .lock-stars { font-size: 14px; display: block; margin-bottom: 6px; }
+.prestige-lock-banner .lock-sub { font-size: 8px; color: var(--dim); margin-top: 4px; display: block; }
+
+/* ── PRESTIGE TIER COLORS ─────────────────────────────────────── */
+.p0 { --pt: #8899cc; }
+.p1 { --pt: #44aaff; }
+.p2 { --pt: #44ff88; }
+.p3 { --pt: #ffcc44; }
+.p4 { --pt: #ff8844; }
+.p5 { --pt: #ff4488; }
+.p6 { --pt: #cc44ff; }
+.p7 { --pt: #44ffcc; }
+.p8 { --pt: #ffff44; }
+.p9 { --pt: #ff6644; }
+.p10 { --pt: #4488ff; }
+.p11 { --pt: #88ff44; }
+.p12 { --pt: #ff44cc; }
+.p13 { --pt: #ffffff; }

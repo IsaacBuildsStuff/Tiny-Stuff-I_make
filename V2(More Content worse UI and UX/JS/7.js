@@ -533,6 +533,63 @@ const Progression = {
     return this.currentConfig.lessonSet;
   },
 
+  applyPrestigeToUnits() {
+    const unlocked = new Set(this.getUnlockedUnits());
+    S.units = S.units.filter(u => unlocked.has(u.id) || (u.id||'').startsWith('c_'));
+    const ids = S.units.map(u => u.id);
+    if (!ids.includes(S.selected[0])) S.selected[0] = ids[0] || 'pyros';
+    if (!ids.includes(S.selected[1])) S.selected[1] = ids[Math.min(1,ids.length-1)] || ids[0];
+    if(S.editingId && !ids.includes(S.editingId)) S.editingId = ids[0]||null;
+  },
+
+  showPrestigeReadyOverlay() {
+    const next = PRESTIGE_CONFIG[this.prestigeLevel + 1];
+    if (!next) return;
+    const el = document.getElementById('modal');
+    if (!el) return;
+    const newUnits = next.unlockedUnits||[];
+    const newFeats = Object.entries(next.features||{}).filter(([k,v])=>v&&!this.currentConfig.features[k]).map(([k])=>({
+      roster:'Roster tab',editor:'Editor tab',editorIdentity:'Identity editor',
+      editorVisuals:'Visuals editor',editorMagic:'Full magic editor',editorMagicHalf:'Magic editor (basic)',
+      editorMelee:'Melee editor',editorRanged:'Ranged editor',editorBehavior:'Behavior editor',
+      passives:'Passive abilities',exportJson:'Export JSON',newUnit:'Create new units'
+    }[k]||k)).filter(Boolean);
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="m-box" style="border:2px solid #ffcc44;width:460px;box-shadow:0 0 80px rgba(255,204,68,.3)">
+      <div class="m-hdr" style="background:linear-gradient(90deg,#1a1200,#201800);border-bottom:2px solid #ffcc44">
+        <span style="font-size:20px">★</span>
+        <span style="color:#ffcc44;font-size:13px;font-weight:bold;letter-spacing:3px">PRESTIGE READY</span>
+      </div>
+      <div class="m-body" style="text-align:center;padding:24px">
+        <div style="font-size:11px;color:#ffcc44;letter-spacing:2px;margin-bottom:4px">${'★'.repeat(this.prestigeLevel+1)}</div>
+        <div style="font-size:18px;color:var(--text);font-weight:bold;letter-spacing:2px;margin-bottom:8px">${next.name}</div>
+        <div style="font-size:9px;color:var(--dim);margin-bottom:18px;line-height:1.6">You've reached the level cap for this prestige tier.<br>Reset your progress to ascend to the next rank.</div>
+        ${newUnits.length?`<div style="margin-bottom:14px"><div style="font-size:8px;color:#ffcc44;letter-spacing:2px;margin-bottom:6px">NEW UNIT UNLOCKED</div><div style="font-size:14px;color:var(--acc);font-weight:bold;letter-spacing:2px">${newUnits.join(', ').toUpperCase()}</div></div>`:''}
+        ${newFeats.length?`<div style="margin-bottom:18px"><div style="font-size:8px;color:#44ffaa;letter-spacing:2px;margin-bottom:6px">NEW FEATURES</div>${newFeats.map(f=>`<div style="font-size:9px;color:#6688aa;padding:2px 0">✓ ${f}</div>`).join('')}</div>`:''}
+        <div style="font-size:8px;color:#443a10;margin-bottom:18px">⚠ Resets: level, XP, battles, missions · Keeps: prestige, custom units</div>
+        <div style="display:flex;gap:10px;justify-content:center">
+          <button onclick="document.getElementById('modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:7px 18px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">NOT YET</button>
+          <button onclick="Progression.doPrestige()" style="background:linear-gradient(135deg,#201400,#301c00);border:2px solid #ffcc44;color:#ffcc44;padding:7px 18px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer;font-weight:bold">★ PRESTIGE</button>
+        </div>
+      </div>
+    </div>`;
+  },
+
+  doPrestige() {
+    if (!this.prestige()) return;
+    document.getElementById('modal').style.display = 'none';
+    this.applyPrestigeToUnits();
+    if (typeof renderBattle === 'function') renderBattle();
+    else if (typeof setTab === 'function') setTab('battle');
+    // Celebrate
+    const t = document.createElement('div');
+    t.className = 'unlock-toast';
+    t.style.cssText = 'border-color:#ffcc44;box-shadow:0 0 60px rgba(255,204,68,.4)';
+    t.innerHTML = `<div style="font-size:9px;color:#ffcc44;letter-spacing:3px;margin-bottom:6px">PRESTIGE ★</div><div style="font-size:22px;margin:4px 0">${'★'.repeat(this.prestigeLevel)}</div><div style="font-size:14px;color:var(--acc);letter-spacing:2px;font-weight:bold">${this.prestigeName}</div>`;
+    document.body.appendChild(t);
+    setTimeout(()=>{t.style.transition='opacity .4s';t.style.opacity='0';setTimeout(()=>t.remove(),400);},2200);
+  },
+
   load() {
     try {
       const data = JSON.parse(localStorage.getItem(PROGRESSION_KEY) || '{}');
@@ -556,6 +613,7 @@ const Progression = {
     } catch(e) {
       console.error('Load failed:',e);
     }
+    this.applyPrestigeToUnits();
   },
 
   save() {
@@ -597,9 +655,10 @@ const Progression = {
   },
 
   xpRange() {
-    if (this.level <= 1) return { base: 0, next: XP_TABLE[1] || 100 };
-    if (this.level >= XP_TABLE.length) return { base: XP_TABLE[XP_TABLE.length - 1], next: XP_TABLE[XP_TABLE.length - 1] };
-    return { base: XP_TABLE[this.level - 1], next: XP_TABLE[this.level] };
+    const table = this.xpTable;
+    if (this.level <= 1) return { base: 0, next: table[1] || 100 };
+    if (this.level >= table.length) return { base: table[table.length-1], next: table[table.length-1] };
+    return { base: table[this.level - 1], next: table[this.level] };
   },
 
   rankTitle() {
@@ -609,11 +668,13 @@ const Progression = {
   addXP(amount) {
     if (amount <= 0) return;
     this.xp += amount;
+    const table = this.xpTable;
     let leveledUp = false;
-    while (this.level < XP_TABLE.length && this.xp >= XP_TABLE[this.level]) {
+    while (this.level < this.maxLevel && this.level < table.length && this.xp >= table[this.level]) {
       this.level++;
       leveledUp = true;
     }
+    if (this.level > this.maxLevel) this.level = this.maxLevel;
     this.save();
     if (leveledUp) this._triggerLevelUp();
     this.checkMissions();
@@ -621,15 +682,14 @@ const Progression = {
 
   _triggerLevelUp() {
     this._levelUpPending = true;
-    // Delay slightly so it doesn't conflict with other cutscenes
     setTimeout(() => {
-      if (CS && CS.active) {
-        // Retry after cutscene ends
-        setTimeout(() => this._triggerLevelUp(), 2000);
-        return;
-      }
+      if (CS && CS.active) { setTimeout(() => this._triggerLevelUp(), 2000); return; }
       this._levelUpPending = false;
-      this.showLevelUpOverlay();
+      if (this.canPrestige() && this.prestigeLevel < 13) {
+        this.showPrestigeReadyOverlay();
+      } else {
+        this.showLevelUpOverlay();
+      }
     }, 1500);
   },
 
@@ -643,9 +703,10 @@ const Progression = {
         <span style="color:var(--acc);font-size:13px;font-weight:bold;letter-spacing:3px">LEVEL UP</span>
       </div>
       <div class="m-body" style="text-align:center;padding:30px 24px">
+        <div style="font-size:9px;color:#4455aa;letter-spacing:2px;margin-bottom:4px">${'★'.repeat(this.prestigeLevel)||'–'}</div>
         <div style="font-size:48px;color:var(--acc);text-shadow:0 0 30px var(--acc);font-weight:bold;line-height:1;margin-bottom:8px">L${this.level}</div>
         <div style="font-size:14px;color:var(--text);letter-spacing:2px;font-weight:bold;margin-bottom:4px">${this.rankTitle()}</div>
-        <div style="font-size:9px;color:var(--dim);margin-bottom:20px">Your mastery of the Forge grows.</div>
+        <div style="font-size:9px;color:var(--dim);margin-bottom:20px">${this.prestigeName} · Prestige ${this.prestigeLevel}</div>
         <button class="c-btn" style="background:var(--acc);color:#fff;border:none;padding:8px 24px;font-size:10px;letter-spacing:2px;cursor:pointer;border-radius:3px" onclick="document.getElementById('modal').style.display='none';Progression.checkMissions();Progression.refreshNav()">CONTINUE</button>
       </div>
     </div>`;
@@ -768,15 +829,22 @@ const Progression = {
 function progressionBarHTML() {
   const pct = Progression.getProgressPct();
   const range = Progression.xpRange();
-  return `<div style="display:flex;align-items:center;gap:8px;margin-right:4px;cursor:pointer" onclick="showMissions()" title="View missions and progress">
+  const p = Progression.prestigeLevel;
+  const maxLvl = Progression.maxLevel;
+  const atCap = Progression.level >= maxLvl;
+  const stars = p > 0 ? '<span style="color:#ffcc44;font-size:9px;letter-spacing:1px">' + '★'.repeat(p) + '</span>' : '';
+  const capBadge = atCap && p < 13
+    ? '<span style="font-size:7px;color:#ffcc44;letter-spacing:1px;cursor:pointer;animation:dotPulse 1s infinite" onclick="Progression.showPrestigeReadyOverlay()">PRESTIGE READY</span>'
+    : '';
+  return `<div style="display:flex;align-items:center;gap:8px;margin-right:4px;cursor:pointer" onclick="showMissions()" title="Prestige ${p} · ${Progression.prestigeName}">
     <div style="display:flex;flex-direction:column;gap:1px;align-items:flex-end">
-      <span id="prog-rank" style="font-size:8px;color:var(--acc);letter-spacing:1.5px;font-weight:bold">${Progression.rankTitle()}</span>
-      <span id="prog-xp" style="font-size:7px;color:var(--dim)">${Progression.xp}/${range.next} XP</span>
+      <span id="prog-rank" style="font-size:8px;color:var(--acc);letter-spacing:1.5px;font-weight:bold">${Progression.prestigeName}</span>
+      <span id="prog-xp" style="font-size:7px;color:var(--dim)">${stars||('L'+Progression.level+'/'+maxLvl)} · ${Progression.xp} XP</span>
     </div>
-    <div style="width:60px;height:8px;background:#0a0d1a;border:1px solid var(--border);border-radius:2px;overflow:hidden;position:relative">
-      <div id="prog-bar-fill" style="width:${pct}%;height:100%;background:linear-gradient(90deg,var(--acc),#ff66aa);transition:width .4s ease;box-shadow:0 0 8px var(--acc)"></div>
+    <div style="width:60px;height:8px;background:#0a0d1a;border:1px solid ${atCap?'#ffcc4488':'var(--border)'};border-radius:2px;overflow:hidden;position:relative">
+      <div id="prog-bar-fill" style="width:${pct}%;height:100%;background:linear-gradient(90deg,${atCap?'#ffcc44':'var(--acc)'},${atCap?'#ff8800':'#ff66aa'});transition:width .4s ease;box-shadow:0 0 8px ${atCap?'#ffcc44':'var(--acc)'}"></div>
     </div>
-    <span id="prog-level" style="font-size:11px;color:var(--acc);font-weight:bold;letter-spacing:1px">L${Progression.level}</span>
+    <span id="prog-level" style="font-size:11px;color:${atCap?'#ffcc44':'var(--acc)'};font-weight:bold;letter-spacing:1px">${atCap&&p<13?'★':'L'+Progression.level}</span>
   </div>`;
 }
 

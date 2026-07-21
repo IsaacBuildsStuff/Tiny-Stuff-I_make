@@ -84,6 +84,7 @@ const PRESTIGE_CONFIG = {
       passives: false,
       exportJson: false,
       newUnit: false,
+      jsonIde: true,
     }
   },
   3: {
@@ -105,6 +106,7 @@ const PRESTIGE_CONFIG = {
       passives: false,
       exportJson: false,
       newUnit: false,
+      jsonIde: true,
     }
   },
   4: {
@@ -126,6 +128,7 @@ const PRESTIGE_CONFIG = {
       passives: false,
       exportJson: false,
       newUnit: false,
+      jsonIde: true,
     }
   },
   5: {
@@ -147,6 +150,7 @@ const PRESTIGE_CONFIG = {
       passives: false,
       exportJson: false,
       newUnit: false,
+      jsonIde: true,
     }
   },
   6: {
@@ -546,7 +550,9 @@ const Progression = {
 
   applyPrestigeToUnits() {
     const unlocked = new Set(this.getUnlockedUnits());
-    S.units = S.units.filter(u => unlocked.has(u.id) || (u.id||'').startsWith('c_'));
+    const customUnits = S.units.filter(u => (u.id||'').startsWith('c_'));
+    const baseUnlocked = typeof BASE_UNITS !== 'undefined' ? BASE_UNITS.filter(u => unlocked.has(u.id)) : [];
+    S.units = [...baseUnlocked, ...customUnits];
     const ids = S.units.map(u => u.id);
     if (!ids.includes(S.selected[0])) S.selected[0] = ids[0] || 'pyros';
     if (!ids.includes(S.selected[1])) S.selected[1] = ids[Math.min(1,ids.length-1)] || ids[0];
@@ -565,8 +571,9 @@ const Progression = {
       editorMelee:'Melee editor',editorRanged:'Ranged editor',editorBehavior:'Behavior editor',
       passives:'Passive abilities',exportJson:'Export JSON',newUnit:'Create new units'
     }[k]||k)).filter(Boolean);
+    const newLessons = next.lessonSet ? (LESSON_SETS[next.lessonSet]||[]).length : 0;
     el.style.display = 'flex';
-    el.innerHTML = `<div class="m-box" style="border:2px solid #ffcc44;width:460px;box-shadow:0 0 80px rgba(255,204,68,.3)">
+    el.innerHTML = `<div class="m-box" style="border:2px solid #ffcc44;width:500px;box-shadow:0 0 80px rgba(255,204,68,.3)">
       <div class="m-hdr" style="background:linear-gradient(90deg,#1a1200,#201800);border-bottom:2px solid #ffcc44">
         <span style="font-size:20px">★</span>
         <span style="color:#ffcc44;font-size:13px;font-weight:bold;letter-spacing:3px">PRESTIGE READY</span>
@@ -576,7 +583,8 @@ const Progression = {
         <div style="font-size:18px;color:var(--text);font-weight:bold;letter-spacing:2px;margin-bottom:8px">${next.name}</div>
         <div style="font-size:9px;color:var(--dim);margin-bottom:18px;line-height:1.6">You've reached the level cap for this prestige tier.<br>Reset your progress to ascend to the next rank.</div>
         ${newUnits.length?`<div style="margin-bottom:14px"><div style="font-size:8px;color:#ffcc44;letter-spacing:2px;margin-bottom:6px">NEW UNIT UNLOCKED</div><div style="font-size:14px;color:var(--acc);font-weight:bold;letter-spacing:2px">${newUnits.join(', ').toUpperCase()}</div></div>`:''}
-        ${newFeats.length?`<div style="margin-bottom:18px"><div style="font-size:8px;color:#44ffaa;letter-spacing:2px;margin-bottom:6px">NEW FEATURES</div>${newFeats.map(f=>`<div style="font-size:9px;color:#6688aa;padding:2px 0">✓ ${f}</div>`).join('')}</div>`:''}
+        ${newFeats.length?`<div style="margin-bottom:14px"><div style="font-size:8px;color:#44ffaa;letter-spacing:2px;margin-bottom:6px">NEW FEATURES</div>${newFeats.map(f=>`<div style="font-size:9px;color:#6688aa;padding:2px 0">✓ ${f}</div>`).join('')}</div>`:''}
+        ${newLessons?`<div style="margin-bottom:14px"><div style="font-size:8px;color:#aa88ff;letter-spacing:2px;margin-bottom:6px">NEW LESSONS</div><div style="font-size:14px;color:var(--acc);font-weight:bold;letter-spacing:2px">${newLessons} NEW LESSONS UNLOCKED</div></div>`:''}
         <div style="font-size:8px;color:#443a10;margin-bottom:18px">⚠ Resets: level, XP, battles, missions · Keeps: prestige, custom units</div>
         <div style="display:flex;gap:10px;justify-content:center">
           <button onclick="document.getElementById('modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:7px 18px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">NOT YET</button>

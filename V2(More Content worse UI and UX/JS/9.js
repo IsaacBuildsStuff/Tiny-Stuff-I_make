@@ -756,13 +756,21 @@ const DevPanel = {
       { id: 'key', symbol: '🔑', type: 'symbol' },
     ];
 
-    let currentPattern;
-    try {
-      currentPattern = JSON.parse(localStorage.getItem(DEV_PATTERN_KEY));
-    } catch {
-      currentPattern = ['red_orb', 'blue_orb', 'yellow_triangle', 'key'];
-    }
-    
+    let currentPattern = JSON.parse(localStorage.getItem(DEV_PATTERN_KEY) || "null");
+
+if (!Array.isArray(currentPattern)) {
+    currentPattern = [
+        'red_orb',
+        'blue_orb',
+        'yellow_triangle',
+        'key'
+    ];
+}
+
+window.devNewPattern = [...currentPattern];
+    console.log(localStorage.getItem(DEV_PATTERN_KEY));
+    console.log(currentPattern);
+    console.log(typeof currentPattern);
     window.devNewPattern = [...currentPattern];
     
     el.innerHTML = `<div class="m-box" style="border:2px solid #ffaa00;width:500px;box-shadow:0 0 40px rgba(255,170,0,.25)">

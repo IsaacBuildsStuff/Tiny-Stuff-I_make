@@ -516,65 +516,27 @@ const JSON_LESSONS=[
   {id:'p11_04',title:'COUNTER SYSTEMS',icon:'H4',exercise:true,initialCode:'{"counters":{"fire":"frost","physical":"evasion","magic":"reflection"}}',
     render(){return`<div class="jl-h1">COUNTER SYSTEMS</div><div class="jl-sub">PRESTIGE 11 — LESSON 4/12</div><div class="jl-p">Counter systems define specific responses to different threat types.</div><div class="jl-rule"><div class="jl-rule-hdr">COUNTER TYPES</div><div class="jl-rule-body">• Elemental counters (fire → frost)<br>• Damage type counters (physical → evasion)<br>• Mechanic counters (DoT → cleanse)<br>• Active vs passive counters</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Change fire counter to <code>"water"</code> and magic counter to <code>"absorption"</code>.</div></div>`;},
     validator(p){if(!p.counters)return'Missing counters';if(p.counters.fire!=='water')return'Fire counter must be water';if(p.counters.magic!=='absorption')return'Magic counter must be absorption';return null;}},
-  {id:'p11_05',title:'SYNERGY CALCULATION',icon:'H5',exercise:true,initialCode:'{\n  "synergyCalc": {\n    "baseMultiplier": 1.0,\n    "perAllyBonus": 0.1,\n    "maxAllies": 5
-  }
-}',
+  {id:'p11_05',title:'SYNERGY CALCULATION',icon:'H5',exercise:true,initialCode:'{\n  "synergyCalc": {\n    "baseMultiplier": 1.0,\n    "perAllyBonus": 0.1,\n    "maxAllies": 5\n  }\n}',
     render(){return`<div class="jl-h1">SYNERGY CALCULATION</div><div class="jl-sub">PRESTIGE 11 — LESSON 5/12</div><div class="jl-p">Synergy calculation determines how team composition affects unit performance.</div><div class="jl-rule"><div class="jl-rule-hdr">SYNERGY FORMULAS</div><div class="jl-rule-body">• baseMultiplier = starting value<br>• perAllyBonus = additional per matching ally<br>• maxAllies = bonus cap<br>• Diminishing returns options</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Set baseMultiplier to <strong>1.2</strong>, perAllyBonus to <strong>0.15</strong>.</div></div>`;},
     validator(p){if(!p.synergyCalc)return'Missing synergyCalc';if(p.synergyCalc.baseMultiplier!==1.2)return'BaseMultiplier must be 1.2';if(p.synergyCalc.perAllyBonus!==0.15)return'PerAllyBonus must be 0.15';return null;}},
-  {id:'p11_06',title:'WIN CONDITIONS',icon:'H6',exercise:true,initialCode:'{\n  "winCondition": {
-    "type": "domination",
-    "threshold": 0.8,
-    "timeLimit": 60000
-  }
-}',
+  {id:'p11_06',title:'WIN CONDITIONS',icon:'H6',exercise:true,initialCode:'{\n  "winCondition": {\n    "type": "domination",\n    "threshold": 0.8,\n    "timeLimit": 60000\n  }\n}',
     render(){return`<div class="jl-h1">WIN CONDITIONS</div><div class="jl-sub">PRESTIGE 11 — LESSON 6/12</div><div class="jl-p">Win conditions define alternative victory methods beyond HP depletion.</div><div class="jl-rule"><div class="jl-rule-hdr">WIN TYPES</div><div class="jl-rule-body"><code>domination</code> — control % of map<br><code>attrition</code> — resource drain<br><code>assassination</code> — target kill<br><code>objective</code> — capture point</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Set type to <code>"attrition"</code> and threshold to <strong>0.6</strong>.</div></div>`;},
     validator(p){if(!p.winCondition)return'Missing winCondition';if(p.winCondition.type!=='attrition')return'Type must be attrition';if(p.winCondition.threshold!==0.6)return'Threshold must be 0.6';return null;}},
-  {id:'p11_07',title:'RESOURCE ECONOMY',icon:'H7',exercise:true,initialCode:'{\n  "economy": {
-    "mana": {
-      "base": 100,
-      "regen": 8,
-      "efficiency": 1.0
-    },
-    "energy": {
-      "base": 50,
-      "regen": 5
-    }
-  }
-}',
+  {id:'p11_07',title:'RESOURCE ECONOMY',icon:'H7',exercise:true,initialCode:'{\n  "economy": {\n    "mana": {\n      "base": 100,\n      "regen": 8,\n      "efficiency": 1.0\n    },\n    "energy": {\n      "base": 50,\n      "regen": 5\n    }\n  }\n}',
     render(){return`<div class="jl-h1">RESOURCE ECONOMY</div><div class="jl-sub">PRESTIGE 11 — LESSON 7/12</div><div class="jl-p">Resource economy manages multiple resource types and their regeneration.</div><div class="jl-rule"><div class="jl-rule-hdr">RESOURCE TYPES</div><div class="jl-rule-body">• mana — spell casting<br>• energy — physical abilities<br>• rage — builds on damage taken<br>• focus — precision resource</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Set mana efficiency to <strong>1.3</strong> and energy regen to <strong>8</strong>.</div></div>`;},
     validator(p){if(!p.economy)return'Missing economy';if(p.economy.mana.efficiency!==1.3)return'Mana efficiency must be 1.3';if(p.economy.energy.regen!==8)return'Energy regen must be 8';return null;}},
-  {id:'p11_08',title:'TEAM COMPOSITION',icon:'H8',exercise:true,initialCode:'{\n  "teamComp": {
-    "roles": ["damage", "support", "tank"],
-    "idealSize": 3,
-    "flexSlots": 1
-  }
-}',
+  {id:'p11_08',title:'TEAM COMPOSITION',icon:'H8',exercise:true,initialCode:'{\n  "teamComp": {\n    "roles": ["damage", "support", "tank"],\n    "idealSize": 3,\n    "flexSlots": 1\n  }\n}',
     render(){return`<div class="jl-h1">TEAM COMPOSITION</div><div class="jl-sub">PRESTIGE 11 — LESSON 8/12</div><div class="jl-p">Team composition defines optimal role distribution for balanced teams.</div><div class="jl-rule"><div class="jl-rule-hdr">ROLE REQUIREMENTS</div><div class="jl-rule-body">• damage — primary offense<br>• support — healing/buffs<br>• tank — frontline/defense<br>• flex — adaptable slot</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Add <code>"controller"</code> to roles and set flexSlots to <strong>2</strong>.</div></div>`;},
     validator(p){if(!p.teamComp)return'Missing teamComp';if(!p.teamComp.roles.includes('controller'))return'Must include controller in roles';if(p.teamComp.flexSlots!==2)return'FlexSlots must be 2';return null;}},
-  {id:'p11_09',title:'MATCH PREDICTION',icon:'H9',exercise:true,initialCode:'{\n  "prediction": {
-    "winRate": 0.5,
-    "confidence": 0.7,
-    "factors": ["stats", "synergy", "counter"]
-  }
-}',
+  {id:'p11_09',title:'MATCH PREDICTION',icon:'H9',exercise:true,initialCode:'{\n  "prediction": {\n    "winRate": 0.5,\n    "confidence": 0.7,\n    "factors": ["stats", "synergy", "counter"]\n  }\n}',
     render(){return`<div class="jl-h1">MATCH PREDICTION</div><div class="jl-sub">PRESTIGE 11 — LESSON 9/12</div><div class="jl-p">Match prediction estimates victory probability based on multiple factors.</div><div class="jl-rule"><div class="jl-rule-hdr">PREDICTION FACTORS</div><div class="jl-rule-body">• stats — raw power comparison<br>• synergy — team coordination<br>• counter — matchup advantage<br>• confidence — prediction certainty</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Set winRate to <strong>0.65</strong> and confidence to <strong>0.85</strong>.</div></div>`;},
     validator(p){if(!p.prediction)return'Missing prediction';if(p.prediction.winRate!==0.65)return'WinRate must be 0.65';if(p.prediction.confidence!==0.85)return'Confidence must be 0.85';return null;}},
-  {id:'p11_10',title:'ADAPTIVE DIFFICULTY',icon:'H10',exercise:true,initialCode:'{\n  "adaptiveDifficulty": {
-    "enabled": true,
-    "sensitivity": 0.5,
-    "adjustmentSpeed": 0.1
-  }
-}',
+  {id:'p11_10',title:'ADAPTIVE DIFFICULTY',icon:'H10',exercise:true,initialCode:'{\n  "adaptiveDifficulty": {\n    "enabled": true,\n    "sensitivity": 0.5,\n    "adjustmentSpeed": 0.1\n  }\n}',
     render(){return`<div class="jl-h1">ADAPTIVE DIFFICULTY</div><div class="jl-sub">PRESTIGE 11 — LESSON 10/12</div><div class="jl-p">Adaptive difficulty adjusts challenge level based on player performance.</div><div class="jl-rule"><div class="jl-rule-hdr">DIFFICULTY MECHANICS</div><div class="jl-rule-body">• sensitivity = how reactive to performance<br>• adjustmentSpeed = change rate<br>• Can scale enemy stats<br>• Can modify AI behavior</div></div><div class="jl-ex"><div class="jl-ex-hdr">⚡ EXERCISE</div><div class="jl-ex-body">Set sensitivity to <strong>0.8</strong> and adjustmentSpeed to <strong>0.15</strong>.</div></div>`;},
     validator(p){if(!p.adaptiveDifficulty||!p.adaptiveDifficulty.enabled)return'AdaptiveDifficulty must be enabled';if(p.adaptiveDifficulty.sensitivity!==0.8)return'Sensitivity must be 0.8';if(p.adaptiveDifficulty.adjustmentSpeed!==0.15)return'AdjustmentSpeed must be 0.15';return null;}},
   {id:'p11_11',title:'TOURNAMENT RULES',icon:'H11',exercise:false,initialCode:'',
     render(){return`<div class="jl-h1">TOURNAMENT RULES</div><div class="jl-sub">PRESTIGE 11 — LESSON 11/12</div><div class="jl-p">Tournament rules define competitive formats, bans, and restrictions.</div><div class="jl-rule"><div class="jl-rule-hdr">FORMAT TYPES</div><div class="jl-rule-body">• Single elimination<br>• Double elimination<br>• Round robin<br>• Swiss system</div></div><div class="jl-rule"><div class="jl-rule-hdr">COMMON RESTRICTIONS</div><div class="jl-rule-body">• Unit bans<br>• Archetype limits<br>• Time controls<br>• Point systems</div></div>`;},validator:null},
-  {id:'p11_12',title:'GRANDMASTER THEORY',icon:'H12',exercise:true,initialCode:'{\n  "grandmaster": {
-    "balanceScore": { "offense": 65, "defense": 55, "utility": 40 },
-    "metaAnalysis": { "strongAgainst": ["tank"], "weakAgainst": ["assassin"] },
-    "scaling": { "primary": "intellect", "coefficients": { "dmg": 0.9 } }
-  }
-}',
+  {id:'p11_12',title:'GRANDMASTER THEORY',icon:'H12',exercise:true,initialCode:'{\n  "grandmaster": {\n    "balanceScore": { "offense": 65, "defense": 55, "utility": 40 },\n    "metaAnalysis": { "strongAgainst": ["tank"], "weakAgainst": ["assassin"] },\n    "scaling": { "primary": "intellect", "coefficients": { "dmg": 0.9 } }\n  }\n}',
     render(){return`<div class="jl-h1">GRANDMASTER THEORY</div><div class="jl-sub">PRESTIGE 11 — LESSON 12/12</div><div class="jl-p">Combine all theoretical concepts into a comprehensive unit analysis.</div><div class="jl-ex"><div class="jl-ex-hdr">⚡ THEORY EXERCISE</div><div class="jl-ex-body">Set utility to <strong>50</strong> and dmg coefficient to <strong>1.0</strong>.</div></div>`;},
     validator(p){if(!p.grandmaster)return'Missing grandmaster';if(p.grandmaster.balanceScore.utility!==50)return'Utility must be 50';if(p.grandmaster.scaling.coefficients.dmg!==1.0)return'Dmg coefficient must be 1.0';return null;}},
 ];

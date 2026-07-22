@@ -241,6 +241,7 @@ function showLockedMsg(tabId,needed){
 // DEV PANEL SYSTEM
 // ================================================================
 const DEV_UNLOCK_KEY = '__uf_dev_unlock_v1';
+const DEV_PATTERN_KEY = '__uf_dev_pattern_v1';
 const DEV_PASSWORD = 'D3Vm0d3';
 
 const DevPanel = {
@@ -272,37 +273,133 @@ const DevPanel = {
     const el = document.getElementById('modal');
     if (!el) return;
     el.style.display = 'flex';
-    el.innerHTML = `<div class="m-box" style="border:1px solid #1a2040;width:320px;box-shadow:0 0 40px rgba(0,0,0,.5)">
+    
+    const patternOptions = [
+      { id: '1', symbol: '1', type: 'number' },
+      { id: '2', symbol: '2', type: 'number' },
+      { id: '3', symbol: '3', type: 'number' },
+      { id: '4', symbol: '4', type: 'number' },
+      { id: '5', symbol: '5', type: 'number' },
+      { id: '6', symbol: '6', type: 'number' },
+      { id: '7', symbol: '7', type: 'number' },
+      { id: '8', symbol: '8', type: 'number' },
+      { id: '9', symbol: '9', type: 'number' },
+      { id: 'red_orb', symbol: '●', color: '#ff4444', type: 'orb' },
+      { id: 'blue_orb', symbol: '●', color: '#4444ff', type: 'orb' },
+      { id: 'green_orb', symbol: '●', color: '#44ff44', type: 'orb' },
+      { id: 'yellow_orb', symbol: '●', color: '#ffff44', type: 'orb' },
+      { id: 'purple_orb', symbol: '●', color: '#aa44ff', type: 'orb' },
+      { id: 'cyan_orb', symbol: '●', color: '#44ffff', type: 'orb' },
+      { id: 'orange_orb', symbol: '●', color: '#ff8844', type: 'orb' },
+      { id: 'yellow_triangle', symbol: '▲', color: '#ffff44', type: 'triangle' },
+      { id: 'yellow_triangle_inv', symbol: '▼', color: '#ffff44', type: 'triangle' },
+      { id: 'lock', symbol: '🔒', type: 'symbol' },
+      { id: 'door', symbol: '🚪', type: 'symbol' },
+      { id: 'key', symbol: '🔑', type: 'symbol' },
+    ];
+
+    const defaultPattern = ['red_orb', 'blue_orb', 'yellow_triangle', 'key'];
+    
+    let storedPattern;
+    try {
+      storedPattern = JSON.parse(localStorage.getItem(DEV_PATTERN_KEY));
+    } catch {
+      storedPattern = null;
+    }
+    
+    const correctPattern = storedPattern || defaultPattern;
+    
+    window.devSelectedPattern = [];
+    
+    el.innerHTML = `<div class="m-box" style="border:1px solid #1a2040;width:500px;box-shadow:0 0 40px rgba(0,0,0,.5)">
       <div class="m-hdr" style="background:#0a0a12;border-bottom:1px solid #1a2040">
         <span style="color:var(--dim);font-size:10px;letter-spacing:2px">DEV ACCESS</span>
         <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:12px;cursor:pointer">\u2715</button>
       </div>
       <div class="m-body" style="padding:16px;text-align:center">
-        <input type="password" id="dev-password-input" placeholder="Enter password" style="width:100%;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:8px;font-size:10px;font-family:monospace;border-radius:3px;margin-bottom:12px" onkeydown="if(event.key==='Enter')DevPanel.checkPassword()">
-        <button onclick="DevPanel.checkPassword()" style="background:#1a2040;border:1px solid var(--border);color:var(--text);padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK</button>
+        <div style="font-size:8px;color:var(--dim);margin-bottom:12px">Select the correct pattern (4 symbols)</div>
+        <div id="pattern-display" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;min-height:32px">
+          ${[0,1,2,3].map(i => `<div id="pattern-slot-${i}" style="width:32px;height:32px;background:#0a0a12;border:1px solid #1a2040;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--dim)"></div>`).join('')}
+        </div>
+        <div id="pattern-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px">
+          ${patternOptions.map(opt => `<button id="pattern-btn-${opt.id}" onclick="DevPanel.selectPatternItem('${opt.id}')" style="width:44px;height:44px;background:#0a0a12;border:1px solid #1a2040;border-radius:4px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:20px;${opt.color ? 'color:'+opt.color : 'color:var(--text)'}">${opt.symbol}</button>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="DevPanel.clearPattern()" style="background:#1a2040;border:1px solid var(--border);color:var(--dim);padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">CLEAR</button>
+          <button onclick="DevPanel.checkPattern()" style="background:#1a2040;border:1px solid var(--border);color:var(--text);padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK</button>
+        </div>
       </div>
     </div>`;
-    setTimeout(() => {
-      const input = document.getElementById('dev-password-input');
-      if (input) input.focus();
-    }, 100);
+    
+    window.devPatternOptions = patternOptions;
+    window.devCorrectPattern = correctPattern;
   },
 
-  checkPassword() {
-    const input = document.getElementById('dev-password-input');
-    if (!input) return;
-    if (input.value === DEV_PASSWORD) {
+  selectPatternItem(id) {
+    if (window.devSelectedPattern.length >= 4) return;
+    
+    const option = window.devPatternOptions.find(o => o.id === id);
+    if (!option) return;
+    
+    window.devSelectedPattern.push(id);
+    
+    const slotIndex = window.devSelectedPattern.length - 1;
+    const slot = document.getElementById(`pattern-slot-${slotIndex}`);
+    if (slot) {
+      slot.textContent = option.symbol;
+      slot.style.color = option.color || 'var(--text)';
+      slot.style.borderColor = option.color || 'var(--border)';
+    }
+    
+    const btn = document.getElementById(`pattern-btn-${id}`);
+    if (btn) {
+      btn.style.opacity = '0.3';
+      btn.style.pointerEvents = 'none';
+    }
+  },
+
+  clearPattern() {
+    window.devSelectedPattern = [];
+    
+    for (let i = 0; i < 4; i++) {
+      const slot = document.getElementById(`pattern-slot-${i}`);
+      if (slot) {
+        slot.textContent = '';
+        slot.style.color = 'var(--dim)';
+        slot.style.borderColor = '#1a2040';
+      }
+    }
+    
+    window.devPatternOptions.forEach(opt => {
+      const btn = document.getElementById(`pattern-btn-${opt.id}`);
+      if (btn) {
+        btn.style.opacity = '1';
+        btn.style.pointerEvents = 'auto';
+      }
+    });
+  },
+
+  checkPattern() {
+    if (window.devSelectedPattern.length !== 4) {
+      alert('Select 4 symbols');
+      return;
+    }
+    
+    const isCorrect = window.devSelectedPattern.every((id, index) => id === window.devCorrectPattern[index]);
+    
+    if (isCorrect) {
       this.unlock();
       document.getElementById('modal').style.display = 'none';
       this.showDevPanel();
     } else {
-      input.style.borderColor = '#ff4455';
-      input.value = '';
-      input.placeholder = 'Incorrect password';
-      setTimeout(() => {
-        input.style.borderColor = '#1a2040';
-        input.placeholder = 'Enter password';
-      }, 1500);
+      this.clearPattern();
+      const display = document.getElementById('pattern-display');
+      if (display) {
+        display.innerHTML = '<div style="color:#ff4455;font-size:10px;padding:8px">Incorrect pattern</div>';
+        setTimeout(() => {
+          display.innerHTML = `${[0,1,2,3].map(i => `<div id="pattern-slot-${i}" style="width:32px;height:32px;background:#0a0a12;border:1px solid #1a2040;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--dim)"></div>`).join('')}`;
+        }, 1500);
+      }
     }
   },
 
@@ -313,48 +410,111 @@ const DevPanel = {
     const allUnits = S.units.map(u => u.id);
 
     el.style.display = 'flex';
-    el.innerHTML = `<div class="m-box" style="border:2px solid #ff44ff;width:700px;max-height:90vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 80px rgba(255,68,255,.25)">
+    el.innerHTML = `<div class="m-box" style="border:2px solid #ff44ff;width:850px;max-height:92vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 80px rgba(255,68,255,.25)">
       <div class="m-hdr" style="background:linear-gradient(90deg,#1a001a,#200020);border-bottom:2px solid #ff44ff">
         <div class="dot" style="width:10px;height:10px;background:#ff44ff;box-shadow:0 0 12px #ff44ff"></div>
         <span style="color:#ff44ff;font-size:12px;font-weight:bold;letter-spacing:3px">DEV TOOLS</span>
         <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
       </div>
-      <div style="padding:16px 18px;border-bottom:1px solid var(--border)">
-        <div style="display:flex;gap:12px;flex-wrap:wrap">
-          <button onclick="DevPanel.unlockAllUnits()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK ALL UNITS</button>
-          <button onclick="DevPanel.setMaxPrestige()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">MAX PRESTIGE</button>
-          <button onclick="DevPanel.addXP(1000)" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">+1000 XP</button>
-          <button onclick="DevPanel.completeAllMissions()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">ALL MISSIONS</button>
-          <button onclick="DevPanel.completeAllLessons()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">ALL LESSONS</button>
-          <button onclick="DevPanel.toggleGodMode()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:6px 12px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">TOGGLE GOD MODE</button>
+      <div style="padding:12px 16px;border-bottom:1px solid var(--border)">
+        <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">QUICK ACTIONS</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button onclick="DevPanel.unlockAllUnits()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">UNLOCK ALL UNITS</button>
+          <button onclick="DevPanel.setMaxPrestige()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">MAX PRESTIGE</button>
+          <button onclick="DevPanel.addXP(1000)" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">+1000 XP</button>
+          <button onclick="DevPanel.completeAllMissions()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">ALL MISSIONS</button>
+          <button onclick="DevPanel.completeAllLessons()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">ALL LESSONS</button>
+          <button onclick="DevPanel.toggleGodMode()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">TOGGLE GOD MODE</button>
+          <button onclick="DevPanel.instantWin()" style="background:#1a0033;border:1px solid #44ff88;color:#44ff88;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">INSTANT WIN</button>
+          <button onclick="DevPanel.instantLose()" style="background:#1a0033;border:1px solid #ff4455;color:#ff4455;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">INSTANT LOSE</button>
         </div>
       </div>
-      <div style="overflow-y:auto;flex:1;padding:16px 18px">
-        <div style="font-size:9px;color:var(--dim);margin-bottom:12px">CURRENT STATE</div>
-        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:16px">
-          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
-            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">PRESTIGE</div>
-            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.prestigeLevel : 'N/A'}</div>
+      <div style="display:flex;flex:1;min-height:0">
+        <div style="width:280px;border-right:1px solid var(--border);overflow-y:auto;padding:12px 16px">
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">PROGRESSION</div>
+          <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin-bottom:12px">
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">PRESTIGE</div>
+              <div style="font-size:12px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.prestigeLevel : 'N/A'}</div>
+            </div>
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">LEVEL</div>
+              <div style="font-size:12px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.level : 'N/A'}</div>
+            </div>
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">XP</div>
+              <div style="font-size:12px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.xp : 'N/A'}</div>
+            </div>
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">STARS</div>
+              <div style="font-size:12px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.stars : 'N/A'}</div>
+            </div>
           </div>
-          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
-            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">LEVEL</div>
-            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.level : 'N/A'}</div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">SET PROGRESSION</div>
+          <div style="display:flex;gap:6px;margin-bottom:8px">
+            <input type="number" id="dev-prestige-input" placeholder="Prestige" min="0" max="13" value="${typeof Progression !== 'undefined' ? Progression.prestigeLevel : 0}" style="width:60px;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:4px;font-size:8px;font-family:monospace;border-radius:3px">
+            <input type="number" id="dev-level-input" placeholder="Level" min="1" max="10" value="${typeof Progression !== 'undefined' ? Progression.level : 1}" style="width:50px;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:4px;font-size:8px;font-family:monospace;border-radius:3px">
+            <input type="number" id="dev-xp-input" placeholder="XP" min="0" value="${typeof Progression !== 'undefined' ? Progression.xp : 0}" style="width:70px;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:4px;font-size:8px;font-family:monospace;border-radius:3px">
+            <button onclick="DevPanel.setCustomProgression()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:4px 8px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">SET</button>
           </div>
-          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
-            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">XP</div>
-            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${typeof Progression !== 'undefined' ? Progression.xp : 'N/A'}</div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">DATA MANAGEMENT</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button onclick="DevPanel.exportSaveData()" style="background:#1a0033;border:1px solid #44aaff;color:#44aaff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">EXPORT SAVE DATA</button>
+            <button onclick="DevPanel.showImportSave()" style="background:#1a0033;border:1px solid #44aaff;color:#44aaff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">IMPORT SAVE DATA</button>
+            <button onclick="DevPanel.clearAllData()" style="background:#1a0033;border:1px solid #ff4455;color:#ff4455;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">CLEAR ALL DATA</button>
+            <button onclick="DevPanel.resetProgression()" style="background:#1a0033;border:1px solid #ffaa44;color:#ffaa44;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">RESET PROGRESSION</button>
           </div>
-          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
-            <div style="font-size:8px;color:var(--dim);margin-bottom:4px">UNITS</div>
-            <div style="font-size:14px;color:#ff44ff;font-weight:bold">${S.units.length}</div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;margin-top:12px">BATTLE CONTROLS</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button onclick="DevPanel.toggleAI()" style="background:#1a0033;border:1px solid #ff44ff;color:#ff44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">TOGGLE AI</button>
+            <button onclick="DevPanel.setBattleSpeed(0.5)" style="background:#1a0033;border:1px solid var(--border);color:var(--dim);padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">SPEED 0.5x</button>
+            <button onclick="DevPanel.setBattleSpeed(1)" style="background:#1a0033;border:1px solid var(--border);color:var(--dim);padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">SPEED 1x</button>
+            <button onclick="DevPanel.setBattleSpeed(2)" style="background:#1a0033;border:1px solid var(--border);color:var(--dim);padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">SPEED 2x</button>
+            <button onclick="DevPanel.setBattleSpeed(3)" style="background:#1a0033;border:1px solid var(--border);color:var(--dim);padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">SPEED 3x</button>
+          </div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;margin-top:12px">SECURITY</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button onclick="DevPanel.showChangePattern()" style="background:#ffaa0022;border:1px solid #ffaa00;color:#ffaa00;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">🔒 D3V53CR3T5 🔒</button>
           </div>
         </div>
-        <div style="font-size:9px;color:var(--dim);margin-bottom:8px">UNIT LIST</div>
-        <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px;max-height:200px;overflow-y:auto">
-          ${S.units.map(u => `<div style="font-size:8px;color:${u.color};padding:2px 0">${u.id} - ${u.name}</div>`).join('')}
+        <div style="flex:1;overflow-y:auto;padding:12px 16px">
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">GAME STATE</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:12px">
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">UNITS</div>
+              <div style="font-size:12px;color:#ff44ff;font-weight:bold">${S.units.length}</div>
+            </div>
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">GOD MODE</div>
+              <div style="font-size:12px;color:${S.godMode ? '#44ff88' : '#ff4455'};font-weight:bold">${S.godMode ? 'ON' : 'OFF'}</div>
+            </div>
+            <div style="background:#0a0a12;border:1px solid #1a2040;padding:6px;border-radius:3px">
+              <div style="font-size:7px;color:var(--dim);margin-bottom:2px">AI ENABLED</div>
+              <div style="font-size:12px;color:${S.aiDisabled ? '#ff4455' : '#44ff88'};font-weight:bold">${S.aiDisabled ? 'OFF' : 'ON'}</div>
+            </div>
+          </div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px">UNIT LIST</div>
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px;max-height:180px;overflow-y:auto">
+            ${S.units.map(u => `<div style="display:flex;justify-content:space-between;align-items:center;font-size:8px;color:${u.color};padding:2px 0;border-bottom:1px solid #1a2040"><span>${u.id} - ${u.name}</span><button onclick="DevPanel.editUnit('${u.id}')" style="background:#1a0033;border:1px solid #ff44ff44;color:#ff44ff;padding:2px 6px;font-size:7px;font-family:monospace;border-radius:2px;cursor:pointer">EDIT</button></div>`).join('')}
+          </div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;margin-top:12px">BATTLE STATE</div>
+          <div style="background:#0a0a12;border:1px solid #1a2040;padding:8px;border-radius:3px">
+            ${S.gs ? `<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px">
+              <div><span style="font-size:7px;color:var(--dim)">WINNER:</span> <span style="font-size:9px;color:${S.gs.winner === 0 ? '#44ff88' : S.gs.winner === 1 ? '#ff4455' : 'var(--dim)'}">${S.gs.winner === 0 ? 'PLAYER' : S.gs.winner === 1 ? 'ENEMY' : 'NONE'}</span></div>
+              <div><span style="font-size:7px;color:var(--dim)">TIME:</span> <span style="font-size:9px;color:var(--text)">${Math.floor(S.gs.time / 1000)}s</span></div>
+              <div><span style="font-size:7px;color:var(--dim)">PAUSED:</span> <span style="font-size:9px;color:${S.paused ? '#ffaa44' : 'var(--dim)'}">${S.paused ? 'YES' : 'NO'}</span></div>
+              <div><span style="font-size:7px;color:var(--dim)">SPEED:</span> <span style="font-size:9px;color:var(--text)">${S.speed}x</span></div>
+            </div>` : '<div style="font-size:8px;color:var(--dim)">No active battle</div>'}
+          </div>
+          <div style="font-size:8px;color:var(--dim);margin-bottom:8px;letter-spacing:1px;margin-top:12px">TESTING</div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <button onclick="DevPanel.triggerCutscene('intro_welcome')" style="background:#1a0033;border:1px solid #aa44ff;color:#aa44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">PLAY INTRO CUTSCENE</button>
+            <button onclick="DevPanel.triggerCutscene('oortho_defeated')" style="background:#1a0033;border:1px solid #aa44ff;color:#aa44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">PLAY VICTORY CUTSCENE</button>
+            <button onclick="DevPanel.triggerCutscene('player_defeated')" style="background:#1a0033;border:1px solid #aa44ff;color:#aa44ff;padding:5px 10px;font-size:8px;font-family:monospace;border-radius:3px;cursor:pointer">PLAY DEFEAT CUTSCENE</button>
+          </div>
         </div>
       </div>
-      <div style="padding:10px 18px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
+      <div style="padding:10px 16px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center">
         <button onclick="DevPanel.lock();document.getElementById('modal').style.display='none';if(typeof renderBattle==='function')renderBattle()" style="background:transparent;border:1px solid #ff4455;color:#ff4455;padding:6px 12px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px">LOCK DEV PANEL</button>
         <button onclick="document.getElementById('modal').style.display='none'" style="background:var(--acc);color:#fff;border:none;padding:6px 16px;font-size:9px;letter-spacing:1px;cursor:pointer;border-radius:3px">CLOSE</button>
       </div>
@@ -416,6 +576,272 @@ const DevPanel = {
       }
     }
     this.showDevPanel();
+  },
+
+  instantWin() {
+    if (S.gs) {
+      S.gs.winner = 0;
+      S.gs.units[1].hp = 0;
+      S.gs.units[1].alive = false;
+    }
+    this.showDevPanel();
+  },
+
+  instantLose() {
+    if (S.gs) {
+      S.gs.winner = 1;
+      S.gs.units[0].hp = 0;
+      S.gs.units[0].alive = false;
+    }
+    this.showDevPanel();
+  },
+
+  setCustomProgression() {
+    const prestigeInput = document.getElementById('dev-prestige-input');
+    const levelInput = document.getElementById('dev-level-input');
+    const xpInput = document.getElementById('dev-xp-input');
+    if (!prestigeInput || !levelInput || !xpInput) return;
+    if (typeof Progression !== 'undefined') {
+      Progression.prestigeLevel = parseInt(prestigeInput.value) || 0;
+      Progression.level = parseInt(levelInput.value) || 1;
+      Progression.xp = parseInt(xpInput.value) || 0;
+      Progression.save();
+      Progression.applyPrestigeToUnits();
+    }
+    this.showDevPanel();
+  },
+
+  exportSaveData() {
+    const saveData = {
+      progression: typeof Progression !== 'undefined' ? localStorage.getItem(PROGRESSION_KEY) : null,
+      missions: typeof Progression !== 'undefined' ? localStorage.getItem(MISSIONS_KEY) : null,
+      units: localStorage.getItem(UNITS_KEY),
+      prestige: localStorage.getItem(PRESTIGE_KEY),
+      jsonFreedom: localStorage.getItem(JSON_FREEDOM_KEY),
+      jsonDraft: localStorage.getItem(JSON_DRAFT_KEY),
+      storyFired: localStorage.getItem(STORY_FIRED_KEY),
+      devUnlocked: localStorage.getItem(DEV_UNLOCK_KEY),
+    };
+    const el = document.getElementById('modal');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="m-box" style="border:2px solid #44aaff;width:600px;max-height:90vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 60px rgba(68,170,255,.25)">
+      <div class="m-hdr" style="background:linear-gradient(90deg,#001a2a,#002040);border-bottom:2px solid #44aaff">
+        <span style="color:#44aaff;font-size:12px;font-weight:bold;letter-spacing:3px">EXPORT SAVE DATA</span>
+        <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
+      </div>
+      <div class="m-body" style="padding:16px">
+        <div style="font-size:9px;color:var(--dim);margin-bottom:8px">Copy this JSON to backup your save data:</div>
+        <pre class="code-pre" style="max-height:400px;overflow-y:auto">${JSON.stringify(saveData, null, 2)}</pre>
+      </div>
+      <div class="m-foot">
+        <button onclick="navigator.clipboard.writeText(JSON.stringify(saveData, null,2));document.getElementById('modal').style.display='none'" style="background:#002040;border:1px solid #44aaff;color:#44aaff;padding:6px 16px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">COPY TO CLIPBOARD</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:6px 16px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">CLOSE</button>
+      </div>
+    </div>`;
+  },
+
+  showImportSave() {
+    const el = document.getElementById('modal');
+    if (!el) return;
+    el.style.display = 'flex';
+    el.innerHTML = `<div class="m-box" style="border:2px solid #44aaff;width:600px;max-height:90vh;display:flex;flex-direction:column;margin:auto;box-shadow:0 0 60px rgba(68,170,255,.25)">
+      <div class="m-hdr" style="background:linear-gradient(90deg,#001a2a,#002040);border-bottom:2px solid #44aaff">
+        <span style="color:#44aaff;font-size:12px;font-weight:bold;letter-spacing:3px">IMPORT SAVE DATA</span>
+        <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
+      </div>
+      <div class="m-body" style="padding:16px">
+        <div style="font-size:9px;color:var(--dim);margin-bottom:8px">Paste your save data JSON below:</div>
+        <textarea id="import-save-textarea" style="width:100%;height:200px;background:#0a0a12;border:1px solid #1a2040;color:var(--text);padding:8px;font-size:9px;font-family:monospace;border-radius:3px;resize:none"></textarea>
+      </div>
+      <div class="m-foot">
+        <button onclick="DevPanel.importSaveData()" style="background:#002040;border:1px solid #44aaff;color:#44aaff;padding:6px 16px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">IMPORT</button>
+        <button onclick="document.getElementById('modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:6px 16px;font-size:10px;font-family:monospace;border-radius:3px;cursor:pointer">CANCEL</button>
+      </div>
+    </div>`;
+  },
+
+  importSaveData() {
+    const textarea = document.getElementById('import-save-textarea');
+    if (!textarea) return;
+    try {
+      const saveData = JSON.parse(textarea.value);
+      if (saveData.progression) localStorage.setItem(PROGRESSION_KEY, saveData.progression);
+      if (saveData.missions) localStorage.setItem(MISSIONS_KEY, saveData.missions);
+      if (saveData.units) localStorage.setItem(UNITS_KEY, saveData.units);
+      if (saveData.prestige) localStorage.setItem(PRESTIGE_KEY, saveData.prestige);
+      if (saveData.jsonFreedom) localStorage.setItem(JSON_FREEDOM_KEY, saveData.jsonFreedom);
+      if (saveData.jsonDraft) localStorage.setItem(JSON_DRAFT_KEY, saveData.jsonDraft);
+      if (saveData.storyFired) localStorage.setItem(STORY_FIRED_KEY, saveData.storyFired);
+      if (saveData.devUnlocked) localStorage.setItem(DEV_UNLOCK_KEY, saveData.devUnlocked);
+      document.getElementById('modal').style.display = 'none';
+      location.reload();
+    } catch (e) {
+      alert('Invalid JSON data');
+    }
+  },
+
+  clearAllData() {
+    if (confirm('Are you sure you want to clear ALL data? This cannot be undone.')) {
+      localStorage.clear();
+      location.reload();
+    }
+  },
+
+  resetProgression() {
+    if (confirm('Are you sure you want to reset progression? This cannot be undone.')) {
+      localStorage.removeItem(PROGRESSION_KEY);
+      localStorage.removeItem(MISSIONS_KEY);
+      localStorage.removeItem(PRESTIGE_KEY);
+      localStorage.removeItem(JSON_FREEDOM_KEY);
+      localStorage.removeItem(JSON_DRAFT_KEY);
+      localStorage.removeItem(STORY_FIRED_KEY);
+      location.reload();
+    }
+  },
+
+  toggleAI() {
+    if (typeof S !== 'undefined') {
+      S.aiDisabled = !S.aiDisabled;
+    }
+    this.showDevPanel();
+  },
+
+  setBattleSpeed(speed) {
+    if (typeof S !== 'undefined') {
+      S.speed = speed;
+    }
+    this.showDevPanel();
+  },
+
+  editUnit(id) {
+    document.getElementById('modal').style.display = 'none';
+    S.editingId = id;
+    S.editTab = 'IDENTITY';
+    setTab('editor');
+  },
+
+  triggerCutscene(id) {
+    if (typeof playCutscene === 'function') {
+      playCutscene(id);
+    }
+  },
+
+  showChangePattern() {
+    const el = document.getElementById('modal');
+    if (!el) return;
+    el.style.display = 'flex';
+    
+    const patternOptions = [
+      { id: '1', symbol: '1', type: 'number' },
+      { id: '2', symbol: '2', type: 'number' },
+      { id: '3', symbol: '3', type: 'number' },
+      { id: '4', symbol: '4', type: 'number' },
+      { id: '5', symbol: '5', type: 'number' },
+      { id: '6', symbol: '6', type: 'number' },
+      { id: '7', symbol: '7', type: 'number' },
+      { id: '8', symbol: '8', type: 'number' },
+      { id: '9', symbol: '9', type: 'number' },
+      { id: 'red_orb', symbol: '●', color: '#ff4444', type: 'orb' },
+      { id: 'blue_orb', symbol: '●', color: '#4444ff', type: 'orb' },
+      { id: 'green_orb', symbol: '●', color: '#44ff44', type: 'orb' },
+      { id: 'yellow_orb', symbol: '●', color: '#ffff44', type: 'orb' },
+      { id: 'purple_orb', symbol: '●', color: '#aa44ff', type: 'orb' },
+      { id: 'cyan_orb', symbol: '●', color: '#44ffff', type: 'orb' },
+      { id: 'orange_orb', symbol: '●', color: '#ff8844', type: 'orb' },
+      { id: 'yellow_triangle', symbol: '▲', color: '#ffff44', type: 'triangle' },
+      { id: 'yellow_triangle_inv', symbol: '▼', color: '#ffff44', type: 'triangle' },
+      { id: 'lock', symbol: '🔒', type: 'symbol' },
+      { id: 'door', symbol: '🚪', type: 'symbol' },
+      { id: 'key', symbol: '🔑', type: 'symbol' },
+    ];
+
+    let currentPattern;
+    try {
+      currentPattern = JSON.parse(localStorage.getItem(DEV_PATTERN_KEY));
+    } catch {
+      currentPattern = ['red_orb', 'blue_orb', 'yellow_triangle', 'key'];
+    }
+    
+    window.devNewPattern = [...currentPattern];
+    
+    el.innerHTML = `<div class="m-box" style="border:2px solid #ffaa00;width:500px;box-shadow:0 0 40px rgba(255,170,0,.25)">
+      <div class="m-hdr" style="background:linear-gradient(90deg,#1a1500,#201a00);border-bottom:2px solid #ffaa00">
+        <span style="color:#ffaa00;font-size:12px;font-weight:bold;letter-spacing:3px">CHANGE PATTERN</span>
+        <button onclick="document.getElementById('modal').style.display='none'" style="margin-left:auto;background:transparent;border:none;color:var(--dim);font-size:14px;cursor:pointer">\u2715</button>
+      </div>
+      <div class="m-body" style="padding:16px;text-align:center">
+        <div style="font-size:8px;color:var(--dim);margin-bottom:12px">Select new pattern (4 symbols)</div>
+        <div id="new-pattern-display" style="display:flex;gap:8px;justify-content:center;margin-bottom:16px;min-height:32px">
+          ${[0,1,2,3].map(i => {
+            const opt = patternOptions.find(o => o.id === currentPattern[i]);
+            return `<div id="new-pattern-slot-${i}" style="width:32px;height:32px;background:#0a0a12;border:1px solid #ffaa00;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:18px;color:${opt ? opt.color || 'var(--text)' : 'var(--dim)'}">${opt ? opt.symbol : ''}</div>`;
+          }).join('')}
+        </div>
+        <div id="new-pattern-grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-bottom:12px">
+          ${patternOptions.map(opt => `<button id="new-pattern-btn-${opt.id}" onclick="DevPanel.selectNewPatternItem('${opt.id}')" style="width:44px;height:44px;background:#0a0a12;border:1px solid #1a2040;border-radius:4px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;font-size:20px;${opt.color ? 'color:'+opt.color : 'color:var(--text)'}">${opt.symbol}</button>`).join('')}
+        </div>
+        <div style="display:flex;gap:8px;justify-content:center">
+          <button onclick="DevPanel.clearNewPattern()" style="background:#1a1500;border:1px solid var(--border);color:var(--dim);padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">CLEAR</button>
+          <button onclick="DevPanel.saveNewPattern()" style="background:#1a1500;border:1px solid #ffaa00;color:#ffaa00;padding:6px 16px;font-size:9px;font-family:monospace;border-radius:3px;cursor:pointer">SAVE</button>
+        </div>
+      </div>
+    </div>`;
+    
+    window.devNewPatternOptions = patternOptions;
+    this.updateNewPatternUI();
+  },
+
+  selectNewPatternItem(id) {
+    if (window.devNewPattern.length >= 4) return;
+    
+    const option = window.devNewPatternOptions.find(o => o.id === id);
+    if (!option) return;
+    
+    window.devNewPattern.push(id);
+    this.updateNewPatternUI();
+  },
+
+  clearNewPattern() {
+    window.devNewPattern = [];
+    this.updateNewPatternUI();
+  },
+
+  updateNewPatternUI() {
+    for (let i = 0; i < 4; i++) {
+      const slot = document.getElementById(`new-pattern-slot-${i}`);
+      if (slot) {
+        const optId = window.devNewPattern[i];
+        const opt = optId ? window.devNewPatternOptions.find(o => o.id === optId) : null;
+        slot.textContent = opt ? opt.symbol : '';
+        slot.style.color = opt ? opt.color || 'var(--text)' : 'var(--dim)';
+        slot.style.borderColor = opt ? '#ffaa00' : '#1a2040';
+      }
+    }
+    
+    window.devNewPatternOptions.forEach(opt => {
+      const btn = document.getElementById(`new-pattern-btn-${opt.id}`);
+      if (btn) {
+        const isSelected = window.devNewPattern.includes(opt.id);
+        btn.style.opacity = isSelected ? '0.3' : '1';
+        btn.style.pointerEvents = isSelected ? 'none' : 'auto';
+      }
+    });
+  },
+
+  saveNewPattern() {
+    if (window.devNewPattern.length !== 4) {
+      alert('Select 4 symbols');
+      return;
+    }
+    
+    try {
+      localStorage.setItem(DEV_PATTERN_KEY, JSON.stringify(window.devNewPattern));
+      document.getElementById('modal').style.display = 'none';
+      this.showDevPanel();
+    } catch (e) {
+      alert('Failed to save pattern');
+    }
   },
 };
 

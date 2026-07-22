@@ -172,6 +172,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: false,
       newUnit: false,
+      jsonIde: true,
     }
   },
   7: {
@@ -193,6 +194,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: false,
+      jsonIde: true,
     }
   },
   8: {
@@ -214,6 +216,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: false,
+      jsonIde: true
     }
   },
   9: {
@@ -235,6 +238,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: true,
+      jsonIde: true
     }
   },
   10: {
@@ -256,6 +260,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: true,
+      jsonIde: true
     }
   },
   11: {
@@ -277,6 +282,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: true,
+      jsonIde: true
     }
   },
   12: {
@@ -298,6 +304,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: true,
+      jsonIde: true
     }
   },
   13: {
@@ -319,6 +326,7 @@ const PRESTIGE_CONFIG = {
       passives: true,
       exportJson: true,
       newUnit: true,
+      jsonIde: true
     }
   }
 };

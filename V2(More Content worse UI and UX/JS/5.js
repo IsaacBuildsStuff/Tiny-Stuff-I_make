@@ -644,56 +644,41 @@ function jsonRunValidate(code, lessonId){
 }
 
 // ================================================================
-// IDE RENDER
+// PURE JSON IDE (NO LESSONS)
 // ================================================================
-function renderJsonIde(){
+function renderLessons(){
   const appEl=document.getElementById('app');
   if(!appEl)return;
-  const completed=JsonFreedom.getCompleted();
   const rank=JsonFreedom.getRank();
   const rankObj=JSON_RANKS[rank];
-  const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
-  const availableLessons = JSON_LESSONS.filter(l => unlockedLessons.includes(l.id));
-  const n=completed.size,total=availableLessons.length;
+  const completed=JsonFreedom.getCompleted();
+  const n=completed.size,total=JSON_LESSONS.length;
   const pct=total>0?Math.round((n/total)*100):0;
-  const lesson=availableLessons.find(l=>l.id===JIS.lesson)||availableLessons[0]||JSON_LESSONS[0];
-  const llistHtml=availableLessons.map(l=>{
-    const done=completed.has(l.id),active=l.id===JIS.lesson;
-    const icon=done?'\u2713':(active?'\u25B8':l.icon);
-    const col=done?'#44ff88':(active?'var(--acc)':'var(--dim)');
-    return`<div class="json-litem${active?' active':''}${done?' done':''}" onclick="jsonGoLesson('${l.id}')"><span class="json-lnum" style="color:${col}">${icon}</span><span class="json-ltitle">${l.title}</span></div>`;
-  }).join('');
   const featHtml=JSON_FEATURES.map(f=>{const on=rank>=f.minRank;return`<div class="rk-feat ${on?'on':''}"><span class="rk-feat-icon">${on?'\u2713':'\u25CB'}</span>${f.label}</div>`;}).join('');
   const toNext=rank<4?Math.max(0,JSON_RANKS[rank+1].minLessons-n):0;
   const sandboxHtml=rank>=4
-    ?`<div class="rk-sandbox active">\u26A1 MASTER RANK<br><span style="color:#3a6a50;font-size:7px">All features + GLITCH tab active.</span></div>`
+    ?`<div class="rk-sandbox active">\u26A1 MASTER RANK<br><span style="color:#3a6a50;font-size:7px">Full sandbox mode active.</span></div>`
     :`<div class="rk-sandbox">${toNext} more lesson${toNext===1?'':'s'} to <strong>${JSON_RANKS[rank+1].name}</strong>.</div>`;
   const nextChapter=StoryProgress.nextChapter();
   const storyHtml=nextChapter
     ?`<div class="rk-sandbox story">\uD83D\uDCD6 Story at <strong>${JSON_RANKS[nextChapter.rank].name}</strong>.</div>`
     :`<div class="rk-sandbox story active">\uD83D\uDCD6 Story complete.</div>`;
-  const lc=lesson.render();
-  let edSection='';
-  if(lesson.exercise){
-    const code=JIS.code!==''?JIS.code:lesson.initialCode;
-    const vr=jsonRunValidate(code,lesson.id);
-    if(JIS.validation===null)JIS.validation=vr;
-    const isDone=completed.has(lesson.id),isImport=lesson.id==='import';
-    const canFmt=JsonFreedom.canFormat(),canLoad=JsonFreedom.canLoadUnit();
-    const subBtn=!isDone&&!isImport?`<button class="jbt go" onclick="jsonSubmit()" ${(!vr||!vr.ok)?'disabled':''}>\u2713 SUBMIT</button>`:'';
-    const impBtn=isImport?`<button class="jbt go" onclick="jsonImport()" ${(!vr||!vr.ok)?'disabled':''}>\u25B2 IMPORT TO ROSTER</button>`:'';
-    const doneTag=isDone&&!isImport?`<span class="done-tag">\u2713 DONE</span>`:'';
-    const loadSel=canLoad?`<select class="jbt-sel" onchange="jsonLoadUnit(this)"><option value="">\u2B07 LOAD UNIT</option>${S.units.map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select>`:'';
-    const exportBtn=JsonFreedom.canEdit()?`<button class="jbt" onclick="jsonDownload()">\u2B07 EXPORT</button>`:'';
-    const safeCode=(code||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const activeLine=String(code||'').substring(0,0).split('\n').length;
-    const gutterHtml=jsonGutterHtml(code||'',vr.errLine,null);
-    const valCls=vr&&vr.ok?'ok':(vr&&(vr.error||vr.lessonErr))?'err':'idle';
-    const valTxt=!String(code||'').trim()?'\u2E61 type JSON below to validate...'
-      :vr&&vr.lessonErr?'\u25CB '+vr.lessonErr
-      :vr&&vr.error?(vr.error.line?`\u2717 Line ${vr.error.line}, Col ${vr.error.col}: ${vr.error.message}`:`\u2717 ${vr.error.message}`)
-      :'\u2713 Valid JSON \u2014 exercise complete!';
-    edSection=`<div class="json-tb"><button class="jbt" onclick="jsonFmt()" ${!canFmt?'disabled title="Requires STUDENT rank"':''}>\u229E FORMAT</button><button class="jbt" onclick="jsonRst()">\u21BA RESET</button><button class="jbt" onclick="jsonClr()">\u2715 CLEAR</button>${exportBtn}${loadSel}${subBtn}${impBtn}${doneTag}</div>
+  
+  const code=JIS.code||'';
+  const vr=jsonRunValidate(code,null);
+  if(JIS.validation===null)JIS.validation=vr;
+  const canFmt=JsonFreedom.canFormat(),canLoad=JsonFreedom.canLoadUnit(),canImport=JsonFreedom.canImport();
+  const loadSel=canLoad?`<select class="jbt-sel" onchange="jsonLoadUnit(this)"><option value="">\u2B07 LOAD UNIT</option>${S.units.map(u=>`<option value="${u.id}">${u.name}</option>`).join('')}</select>`:'';
+  const exportBtn=JsonFreedom.canEdit()?`<button class="jbt" onclick="jsonDownload()">\u2B07 EXPORT</button>`:'';
+  const importBtn=canImport?`<button class="jbt go" onclick="jsonImportToRoster()" ${(!vr||!vr.ok)?'disabled':''}>\u25B2 IMPORT TO ROSTER</button>`:'';
+  const safeCode=(code||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const gutterHtml=jsonGutterHtml(code||'',vr.errLine,null);
+  const valCls=vr&&vr.ok?'ok':(vr&&(vr.error||vr.lessonErr))?'err':'idle';
+  const valTxt=!String(code||'').trim()?'\u2E61 type JSON below to validate...'
+    :vr&&vr.error?(vr.error.line?`\u2717 Line ${vr.error.line}, Col ${vr.error.col}: ${vr.error.message}`:`\u2717 ${vr.error.message}`)
+    :'\u2713 Valid JSON';
+  
+  appEl.innerHTML=`${nav('json')}<div class="json-ide"><div class="json-lpanel"><div class="json-lhdr"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">JSON IDE</div><div class="rk-bar-bg"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-top:4px;letter-spacing:.5px">${n} / ${total} COMPLETE</div></div><div style="margin-top:16px"><button class="jbt" style="width:100%" onclick="setTab('lessons')">\u2190 GO TO LESSONS</button></div></div><div class="json-cmid"><div class="json-content"><div style="font-size:13px;color:var(--text);letter-spacing:2px;margin-bottom:14px">JSON SANDBOX</div><div style="font-size:9px;color:var(--dim);margin-bottom:12px">Edit any unit JSON directly. Load units, modify them, and import back to roster.</div><div class="json-tb"><button class="jbt" onclick="jsonFmt()" ${!canFmt?'disabled title="Requires STUDENT rank"':''}>\u229E FORMAT</button><button class="jbt" onclick="jsonRst()">\u21BA RESET</button><button class="jbt" onclick="jsonClr()">\u2715 CLEAR</button>${exportBtn}${loadSel}${importBtn}</div>
 <div class="json-editor" id="jeditor">
   <div id="jln" style="margin:0;flex:0 0 38px;overflow:hidden;background:#02050b;color:#2a3870;font-family:'Courier New',monospace;font-size:10px;line-height:1.7;padding:10px 5px;text-align:right;user-select:none;white-space:nowrap;border-right:1px solid #0d1530">${gutterHtml}</div>
   <div class="json-code">
@@ -704,12 +689,7 @@ function renderJsonIde(){
 <div id="jval" class="json-val ${valCls}">${valTxt}</div>
 <div style="display:grid;grid-template-columns:minmax(0,1fr) 220px;gap:8px;align-items:start;margin-top:6px">
   <div style="background:#010306;border:1px solid #0a1020;border-radius:3px;padding:9px 10px;font-family:'Courier New',monospace;font-size:9px;line-height:1.7;color:#3a4a70;min-height:90px;overflow:auto" id="jprv">${jsonPreviewHtml(vr)}</div>
-</div>`;
-  }else{
-    const isDone=completed.has(lesson.id);
-    edSection=`<div class="json-cbar">${isDone?`<span class="done-tag">\u2713 LESSON COMPLETE</span>`:`<button class="jbt go" onclick="jsonMarkRead('${lesson.id}')">\u2713 MARK COMPLETE &amp; CONTINUE</button>`}</div>`;
-  }
-  document.getElementById('app').innerHTML=`${nav('json')}<div class="json-ide"><div class="json-lpanel"><div class="json-lhdr"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">JSON LESSONS</div><div class="rk-bar-bg"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-top:4px;letter-spacing:.5px">${n} / ${total} COMPLETE</div></div><div class="json-llist">${llistHtml}</div></div><div class="json-cmid"><div class="json-content">${lc}${edSection}</div></div><div class="json-rpanel"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">FREEDOM RANK</div><div class="rk-bar-bg" style="margin-bottom:3px"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-bottom:12px;letter-spacing:.5px">${n}/${total} — ${pct}%</div><div class="rk-badge"><span class="rk-badge-icon">${rankObj.icon}</span><div class="rk-badge-name">${rankObj.name}</div><div class="rk-badge-tier">${rankObj.tier} · ${rankObj.desc}</div></div><div style="font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">SANDBOX FEATURES</div>${featHtml}${sandboxHtml}${storyHtml}<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><button onclick="JsonFreedom.reset();JIS.lesson='intro';JIS.code='';JIS.validation=null;renderJsonIde()" style="width:100%;background:transparent;border:1px solid #200f0f;color:#3a1818;font-size:8px;padding:4px;border-radius:2px;cursor:pointer;font-family:monospace">\u21BA RESET PROGRESS</button></div></div></div>`;
+</div></div></div><div class="json-rpanel"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">FREEDOM RANK</div><div class="rk-bar-bg" style="margin-bottom:3px"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-bottom:12px;letter-spacing:.5px">${n}/${total} — ${pct}%</div><div class="rk-badge"><span class="rk-badge-icon">${rankObj.icon}</span><div class="rk-badge-name">${rankObj.name}</div><div class="rk-badge-tier">${rankObj.tier} · ${rankObj.desc}</div></div><div style="font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">SANDBOX FEATURES</div>${featHtml}${sandboxHtml}${storyHtml}<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><button onclick="JsonFreedom.reset();JIS.lesson='intro';JIS.code='';JIS.validation=null;renderLessons()" style="width:100%;background:transparent;border:1px solid #200f0f;color:#3a1818;font-size:8px;padding:4px;border-radius:2px;cursor:pointer;font-family:monospace">\u21BA RESET PROGRESS</button></div></div></div>`;
 }
 
 // ================================================================
@@ -721,14 +701,14 @@ function jsonGoLesson(id){
     showLockedMsg('lesson', Math.floor((unlockedLessons.length / 12) + 1));
     return;
   }
-  const l=JSON_LESSONS.find(x=>x.id===id);if(!l)return;JIS.lesson=id;JIS.code=l.initialCode||'';JIS.validation=null;jIdeUndo.reset(JIS.code);jsonSaveDraft(JIS.code);renderJsonIde();
+  const l=JSON_LESSONS.find(x=>x.id===id);if(!l)return;JIS.lesson=id;JIS.code=l.initialCode||'';JIS.validation=null;jIdeUndo.reset(JIS.code);jsonSaveDraft(JIS.code);renderLessons();
 }
 function jsonMarkRead(id){
   JsonFreedom.complete(id);showJIdToast(id);checkStoryProgress();
   const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
   const idx=JSON_LESSONS.findIndex(l=>l.id===id);
   const next=JSON_LESSONS.find((l, i) => i > idx && unlockedLessons.includes(l.id));
-  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);
+  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderLessons();},1200);
 }
 
 function jsonUpdateGutter(ta){
@@ -781,9 +761,9 @@ function jsonSubmit(){
   const unlockedLessons = typeof Progression !== 'undefined' ? Progression.getUnlockedLessons() : JSON_LESSONS.map(l => l.id);
   const idx=JSON_LESSONS.findIndex(l=>l.id===id);
   const next=JSON_LESSONS.find((l, i) => i > idx && unlockedLessons.includes(l.id));
-  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderJsonIde();},1200);
+  setTimeout(()=>{if(next){JIS.lesson=next.id;JIS.code=next.initialCode||'';}JIS.validation=null;jsonSaveDraft(JIS.code);renderLessons();},1200);
 }
-function jsonImport(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok||!vr.parsed)return;const def=mkDef(vr.parsed);const idx=S.units.findIndex(u=>u.id===def.id);if(idx>=0)S.units[idx]=def;else S.units.push(def);const alreadyDone=JsonFreedom.getCompleted().has('import');JsonFreedom.complete('import');if(!alreadyDone){showJIdToast('import');setTimeout(()=>showImportToast(def.name),1300);}else{showImportToast(def.name);}checkStoryProgress();setTimeout(()=>{JIS.validation=null;renderJsonIde();},2000);}
+function jsonImport(){const vr=JIS.validation||jsonRunValidate(JIS.code,JIS.lesson);if(!vr||!vr.ok||!vr.parsed)return;const def=mkDef(vr.parsed);const idx=S.units.findIndex(u=>u.id===def.id);if(idx>=0)S.units[idx]=def;else S.units.push(def);const alreadyDone=JsonFreedom.getCompleted().has('import');JsonFreedom.complete('import');if(!alreadyDone){showJIdToast('import');setTimeout(()=>showImportToast(def.name),1300);}else{showImportToast(def.name);}checkStoryProgress();setTimeout(()=>{JIS.validation=null;renderLessons();},2000);}
 function showJIdToast(completedId){
   const completed=JsonFreedom.getCompleted();const newRank=JsonFreedom.getRank();
   const didRankUp=newRank>0&&completed.size===JSON_RANKS[newRank].minLessons;
@@ -793,3 +773,4 @@ function showJIdToast(completedId){
   document.body.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},1100);
 }
 function showImportToast(name){const t=document.createElement('div');t.className='unlock-toast import-toast';t.innerHTML=`<div style="font-size:9px;color:#aabbff;letter-spacing:3px;margin-bottom:6px">UNIT IMPORTED</div><div style="font-size:17px;color:var(--acc);letter-spacing:3px;font-weight:bold;margin-bottom:6px">${name}</div><div style="font-size:8px;color:#4455aa;letter-spacing:1px">Now in ROSTER &amp; BATTLE</div>`;document.body.appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s';t.style.opacity='0';setTimeout(()=>t.remove(),300);},1800);}
+

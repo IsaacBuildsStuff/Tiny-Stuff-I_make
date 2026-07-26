@@ -646,7 +646,7 @@ function jsonRunValidate(code, lessonId){
 // ================================================================
 // PURE JSON IDE (NO LESSONS)
 // ================================================================
-function renderLessons(){
+function renderJsonIde(){
   const appEl=document.getElementById('app');
   if(!appEl)return;
   const rank=JsonFreedom.getRank();
@@ -678,7 +678,7 @@ function renderLessons(){
     :vr&&vr.error?(vr.error.line?`\u2717 Line ${vr.error.line}, Col ${vr.error.col}: ${vr.error.message}`:`\u2717 ${vr.error.message}`)
     :'\u2713 Valid JSON';
   
-  appEl.innerHTML=`${nav('json')}<div class="json-ide"><div class="json-lpanel"><div class="json-lhdr"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">JSON IDE</div><div class="rk-bar-bg"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-top:4px;letter-spacing:.5px">${n} / ${total} COMPLETE</div></div><div style="margin-top:16px"><button class="jbt" style="width:100%" onclick="setTab('lessons')">\u2190 GO TO LESSONS</button></div></div><div class="json-cmid"><div class="json-content"><div style="font-size:13px;color:var(--text);letter-spacing:2px;margin-bottom:14px">JSON SANDBOX</div><div style="font-size:9px;color:var(--dim);margin-bottom:12px">Edit any unit JSON directly. Load units, modify them, and import back to roster.</div><div class="json-tb"><button class="jbt" onclick="jsonFmt()" ${!canFmt?'disabled title="Requires STUDENT rank"':''}>\u229E FORMAT</button><button class="jbt" onclick="jsonRst()">\u21BA RESET</button><button class="jbt" onclick="jsonClr()">\u2715 CLEAR</button>${exportBtn}${loadSel}${importBtn}</div>
+  appEl.innerHTML=`${nav('json')}<div class="json-ide"><div class="json-lpanel"><div class="json-lhdr"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">JSON IDE</div><div class="rk-bar-bg"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-top:4px;letter-spacing:.5px">${n} / ${total} COMPLETE</div></div><div style="margin-top:16px"><button class="jbt" style="width:100%;background:var(--acc)22;border-color:var(--acc);color:var(--acc)" onclick="setTab('lessons')">\u2190 GO TO LESSONS</button></div></div><div class="json-cmid"><div class="json-content"><div style="font-size:13px;color:var(--text);letter-spacing:2px;margin-bottom:14px">JSON SANDBOX</div><div style="font-size:9px;color:var(--dim);margin-bottom:12px">Edit any unit JSON directly. Load units, modify them, and import back to roster.</div><div class="json-tb"><button class="jbt" onclick="jsonFmt()" ${!canFmt?'disabled title="Requires STUDENT rank"':''}>\u229E FORMAT</button><button class="jbt" onclick="jsonRst()">\u21BA RESET</button><button class="jbt" onclick="jsonClr()">\u2715 CLEAR</button>${exportBtn}${loadSel}${importBtn}</div>
 <div class="json-editor" id="jeditor">
   <div id="jln" style="margin:0;flex:0 0 38px;overflow:hidden;background:#02050b;color:#2a3870;font-family:'Courier New',monospace;font-size:10px;line-height:1.7;padding:10px 5px;text-align:right;user-select:none;white-space:nowrap;border-right:1px solid #0d1530">${gutterHtml}</div>
   <div class="json-code">

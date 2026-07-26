@@ -1,0 +1,1 @@
+function jsonImportToRoster(){const vr=JIS.validation||jsonRunValidate(JIS.code,null);if(!vr||!vr.ok||!vr.parsed)return;const def=mkDef(vr.parsed);const idx=S.units.findIndex(u=>u.id===def.id);if(idx>=0)S.units[idx]=def;else S.units.push(def);showImportToast(def.name);setTimeout(()=>{JIS.validation=null;renderJsonIde();},2000);}

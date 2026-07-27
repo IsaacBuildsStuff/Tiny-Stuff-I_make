@@ -1,13 +1,23 @@
 /* ── JSON IDE ─────────────────────────────────────────────── */
 .json-ide { display: flex; height: 100%; flex-wrap: nowrap; min-width: 0; }
-.json-lpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; min-width: 200px; }
+.json-lpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-right: 1px solid var(--border); overflow-y: auto; min-width: 200px; transition: background 0.2s; }
+.json-lpanel:hover { background: #0c0f22; }
+.json-lpanel::-webkit-scrollbar { width: 4px; }
+.json-lpanel::-webkit-scrollbar-thumb { background: #1a2040; border-radius: 2px; }
+.json-lpanel::-webkit-scrollbar-thumb:hover { background: #2a3050; }
 .json-cmid { flex: 1; overflow-y: auto; padding: 14px; min-width: 0; display: flex; flex-direction: column; }
-.json-rpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; min-width: 200px; }
+.json-rpanel { width: 200px; flex-shrink: 0; padding: 10px; background: var(--panel); border-left: 1px solid var(--border); overflow-y: auto; min-width: 200px; transition: background 0.2s; }
+.json-rpanel:hover { background: #0c0f22; }
+.json-rpanel::-webkit-scrollbar { width: 4px; }
+.json-rpanel::-webkit-scrollbar-thumb { background: #1a2040; border-radius: 2px; }
+.json-rpanel::-webkit-scrollbar-thumb:hover { background: #2a3050; }
 .rk-bar-bg { height: 4px; background: #040609; border-radius: 2px; overflow: hidden; }
 .rk-bar-fg { height: 100%; background: var(--acc); border-radius: 2px; transition: width 0.3s; box-shadow: 0 0 4px var(--acc); }
-.json-litem { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 2px; cursor: pointer; transition: all 0.15s; margin-bottom: 2px; }
-.json-litem:hover { background: rgba(119,102,255,0.06); }
-.json-litem.active { background: rgba(119,102,255,0.12); }
+.json-litem { display: flex; align-items: center; gap: 6px; padding: 5px 8px; border-radius: 2px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); margin-bottom: 2px; position: relative; overflow: hidden; }
+.json-litem::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(119,102,255,0.06), rgba(119,102,255,0.01)); opacity: 0; transition: opacity 0.2s; }
+.json-litem:hover::before { opacity: 1; }
+.json-litem:hover { background: rgba(119,102,255,0.06); transform: translateX(2px); }
+.json-litem.active { background: rgba(119,102,255,0.12); border-color: var(--acc); box-shadow: 0 0 8px rgba(119,102,255,0.15); }
 .json-litem.done .json-lnum { color: var(--good); }
 .json-lnum { font-size: 10px; min-width: 16px; }
 .json-ltitle { font-size: 9px; color: var(--text); }
@@ -36,10 +46,14 @@
 .jl-ex-body { font-size: 9px; color: var(--text); line-height: 1.7; }
 .jl-ex-body code { background: #040609; padding: 1px 4px; border-radius: 2px; color: var(--acc2); }
 .json-tb { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; align-items: center; }
-.jbt { background: #06080f; border: 1px solid var(--border2); color: var(--dim); padding: 4px 10px; font-size: 9px; font-family: 'Courier New', monospace; border-radius: 2px; cursor: pointer; transition: all 0.15s; }
-.jbt:hover:not(:disabled) { border-color: var(--acc); color: var(--acc2); }
+.jbt { background: #06080f; border: 1px solid var(--border2); color: var(--dim); padding: 4px 10px; font-size: 9px; font-family: 'Courier New', monospace; border-radius: 2px; cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); position: relative; overflow: hidden; }
+.jbt::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(119,102,255,0.06), rgba(119,102,255,0.01)); opacity: 0; transition: opacity 0.2s; }
+.jbt:hover::before { opacity: 1; }
+.jbt:hover:not(:disabled) { border-color: var(--acc); color: var(--acc2); transform: translateY(-1px); box-shadow: 0 2px 6px rgba(119,102,255,0.1); }
+.jbt:active:not(:disabled) { transform: translateY(0); }
 .jbt:disabled { opacity: 0.3; cursor: not-allowed; }
 .jbt.go { border-color: rgba(68,255,136,0.3); color: var(--good); }
+.jbt.go:hover:not(:disabled) { border-color: var(--good); color: var(--good); box-shadow: 0 2px 6px rgba(68,255,136,0.15); }
 .jbt.go:disabled { border-color: var(--border2); color: var(--dim); }
 .done-tag { font-size: 9px; color: var(--good); padding: 3px 8px; background: rgba(68,255,136,0.06); border: 1px solid rgba(68,255,136,0.2); border-radius: 2px; }
 .json-editor { display: flex; border: 1px solid var(--border); border-radius: 3px; overflow: hidden; background: #010306; min-height: 200px; max-height: 350px; }

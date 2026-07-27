@@ -44,10 +44,11 @@ body {
   background: linear-gradient(180deg, #060810, #040609);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
 
 .logo { display: flex; flex-direction: column; gap: 1px; }
-.logo-title { font-size: 13px; color: var(--acc); letter-spacing: 4px; font-weight: bold; line-height: 1; }
+.logo-title { font-size: 13px; color: var(--acc); letter-spacing: 4px; font-weight: bold; line-height: 1; text-shadow: 0 0 10px rgba(119,102,255,0.3); }
 .logo-sub { font-size: 7px; color: var(--dim); letter-spacing: 2px; }
 
 .nav { margin-left: auto; display: flex; gap: 4px; align-items: center; }
@@ -61,16 +62,29 @@ body {
   font-family: 'Courier New', monospace;
   border-radius: 3px;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   letter-spacing: 1px;
   display: flex;
   align-items: center;
   gap: 5px;
+  position: relative;
+  overflow: hidden;
 }
-.nav-btn:hover { border-color: var(--acc); color: var(--acc2); background: rgba(119,102,255,0.08); }
-.nav-btn.on { border-color: var(--acc); color: var(--acc); background: rgba(119,102,255,0.12); box-shadow: 0 0 8px rgba(119,102,255,0.2); }
+.nav-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(119,102,255,0.1), rgba(119,102,255,0.05));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.nav-btn:hover::before { opacity: 1; }
+.nav-btn:hover { border-color: var(--acc); color: var(--acc2); transform: translateY(-1px); }
+.nav-btn.on { border-color: var(--acc); color: var(--acc); background: rgba(119,102,255,0.12); box-shadow: 0 0 12px rgba(119,102,255,0.25), inset 0 0 20px rgba(119,102,255,0.05); }
+.nav-btn:active { transform: translateY(0); }
 
-.rank-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; background: #06080f; border: 1px solid var(--border2); border-radius: 3px; font-size: 9px; letter-spacing: 1px; }
+.rank-badge { display: flex; align-items: center; gap: 4px; padding: 3px 8px; background: #06080f; border: 1px solid var(--border2); border-radius: 3px; font-size: 9px; letter-spacing: 1px; transition: all 0.2s; }
+.rank-badge:hover { border-color: var(--border); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .rank-badge .icon { font-size: 14px; }
 .rank-badge .name { color: var(--acc); font-weight: bold; }
 
@@ -79,6 +93,7 @@ body {
 .content::-webkit-scrollbar { width: 6px; }
 .content::-webkit-scrollbar-track { background: #040609; }
 .content::-webkit-scrollbar-thumb { background: #1a2040; border-radius: 3px; }
+.content::-webkit-scrollbar-thumb:hover { background: #2a3050; }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 900px) {

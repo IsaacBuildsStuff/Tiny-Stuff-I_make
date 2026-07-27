@@ -124,9 +124,177 @@ function renderLessons(){
   appEl.innerHTML=`${nav('lessons')}<div class="json-ide"><div class="json-lpanel"><div class="json-lhdr"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:7px">JSON LESSONS</div><div class="rk-bar-bg"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-top:4px;letter-spacing:.5px">${n} / ${total} COMPLETE</div></div><div class="json-llist">${llistHtml}</div></div><div class="json-cmid"><div class="json-content">${lc}${edSection}</div></div><div class="json-rpanel"><div style="font-size:8px;color:var(--dim);letter-spacing:2px;margin-bottom:6px">FREEDOM RANK</div><div class="rk-bar-bg" style="margin-bottom:3px"><div class="rk-bar-fg" style="width:${pct}%"></div></div><div style="font-size:8px;color:#2a3870;margin-bottom:12px;letter-spacing:.5px">${n}/${total} — ${pct}%</div><div class="rk-badge"><span class="rk-badge-icon">${rankObj.icon}</span><div class="rk-badge-name">${rankObj.name}</div><div class="rk-badge-tier">${rankObj.tier} · ${rankObj.desc}</div></div><div style="font-size:8px;color:var(--dim);letter-spacing:1.5px;margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--border)">SANDBOX FEATURES</div>${featHtml}${sandboxHtml}${storyHtml}<div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border)"><button onclick="JsonFreedom.reset();JIS.lesson='intro';JIS.code='';JIS.validation=null;renderLessons()" style="width:100%;background:transparent;border:1px solid #200f0f;color:#3a1818;font-size:8px;padding:4px;border-radius:2px;cursor:pointer;font-family:monospace">\u21BA RESET PROGRESS</button></div></div></div>`;
 }
 function renderTutorial(){
+  const t='tutorial';
   const appEl=document.getElementById('app');
   if(!appEl)return;
-  appEl.innerHTML=`${nav('tutorial')}<div class="content"><div class="tutorial-v"><div style="max-width:800px;margin:0 auto;padding:30px 20px"><div style="font-size:24px;color:var(--acc);letter-spacing:4px;font-weight:bold;margin-bottom:8px">QUICK START GUIDE</div><div style="font-size:11px;color:var(--dim);letter-spacing:2px;margin-bottom:30px">UNIT FORGE TUTORIAL</div><div class="tut-section"><div class="tut-num">1</div><div class="tut-body"><div class="tut-title">\u2694 BATTLE TAB</div><div class="tut-desc">Watch two units fight in real-time. Use the side panels to select which units battle. Controls: <strong>RESTART</strong> to begin, <strong>PAUSE</strong> to freeze, <strong>INTEL</strong> to see AI decisions.</div></div></div><div class="tut-section"><div class="tut-num">2</div><div class="tut-body"><div class="tut-title">\u25C8 ROSTER TAB</div><div class="tut-desc">Browse all available units. Click <strong>FIGHT</strong> to send a unit to battle, or <strong>EDIT</strong> to customize it. Use <strong>+ NEW UNIT</strong> to create custom units.</div></div></div><div class="tut-section"><div class="tut-num">3</div><div class="tut-body"><div class="tut-title">\u2699 EDITOR TAB</div><div class="tut-desc">Seven tabs control every aspect of a unit: Identity, Core Stats, Visuals, Magic, Melee, Ranged, and Behavior. Changes save instantly.</div></div></div><div class="tut-section"><div class="tut-num">4</div><div class="tut-body"><div class="tut-title">\uD83D\uDCDA LESSONS TAB</div><div class="tut-desc">Learn JSON through interactive lessons. Complete lessons to unlock Freedom Ranks and gain access to advanced features like the JSON IDE.</div></div></div><div class="tut-section"><div class="tut-num">5</div><div class="tut-body"><div class="tut-title">\u26A1 JSON IDE TAB</div><div class="tut-desc">A pure JSON editing environment for advanced users. Load units, edit their JSON directly, and import changes back to your roster.</div></div></div><div class="tut-section"><div class="tut-num">6</div><div class="tut-body"><div class="tut-title">\u2605 PRESTIGE SYSTEM</div><div class="tut-desc">Earn stars by winning battles. Prestige to unlock new units and prestige tiers. Each prestige tier unlocks additional lessons and features.</div></div></div><div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--border);text-align:center"><button onclick="setTab('battle')" style="background:#120e30;border:1px solid var(--acc);color:var(--acc);padding:10px 24px;font-size:11px;font-family:monospace;border-radius:3px;cursor:pointer;letter-spacing:2px">START BATTING →</button></div></div></div></div>`;
+  appEl.innerHTML=`${nav(t)}${tutorialHtml()}`;
+  if(typeof TutorialCache!=='undefined')TutorialCache.mark();
+}
+function tutorialHtml(){
+  return`<div class="tutorial-page">
+    <div class="tutorial-hero">
+      <div class="tutorial-hero-badge">\u2694 UNIT FORGE</div>
+      <div class="tutorial-hero-title">Interactive Combat Simulator</div>
+      <div class="tutorial-hero-copy">Learn the Forge through dedicated pages for battle, roster, editor, and JSON. Each screen is a focused workspace rather than one stacked cluster.</div>
+    </div>
+    <div class="tutorial-grid">
+      <div class="tutorial-card"><div class="tutorial-card-title">\uD83C\uDFAF Quick Start</div><div class="tutorial-card-body">Design units, tune their stats, and watch the combat engine react instantly. Every screen is built to feel like its own page.</div></div>
+      <div class="tutorial-card"><div class="tutorial-card-title">\u2694 Battle</div><div class="tutorial-card-body">Pick your combatants, restart matches, pause the action, and inspect the live AI decisions from a focused battle view.</div><div class="tutorial-badges"><span class="tutorial-badge">RESTART</span><span class="tutorial-badge">PAUSE</span><span class="tutorial-badge">INTEL</span></div></div>
+      <div class="tutorial-card"><div class="tutorial-card-title">\u25C8 Roster</div><div class="tutorial-card-body">Browse the built-in roster, create new units, and send them into battle from their own dedicated page.</div><div class="tutorial-badges"><span class="tutorial-badge">FIGHT</span><span class="tutorial-badge">EDIT</span><span class="tutorial-badge">NEW</span></div></div>
+      <div class="tutorial-card"><div class="tutorial-card-title">\u2699 Editor</div><div class="tutorial-card-body">Fine-tune identity, combat stats, visuals, magic, melee, ranged combat, and AI behavior through modular sections.</div></div>
+      <div class="tutorial-card"><div class="tutorial-card-title">\u2728 Schools &amp; Passives</div><div class="tutorial-card-body">Experiment with fire, frost, storm, shadow, void, holy, and more. Stack passives for powerful synergies.</div></div>
+      <div class="tutorial-card tutorial-card-accent"><div class="tutorial-card-title">\u2694 OORTHO BATTLE TUTORIAL</div><div class="tutorial-card-body">Face the Arcane Sentinel and learn spell timing, signature abilities, positioning, and status effects through a guided duel.</div><div class="tutorial-actions"><button class="tutorial-action-btn" onclick="showBattleTutorialMenu()">\u25B6 START BATTLE TUTORIAL</button><button class="tutorial-action-btn ghost" onclick="if(typeof TutorialCache!=='undefined')TutorialCache.resetBattleTutorial()">\u21BA RESET</button></div></div>
+    </div>
+    <div class="tutorial-footer-bar">
+      <div class="tutorial-status">Tutorial State: ${typeof TutorialCache!=='undefined' && TutorialCache.hasSeen()?'\u2713 Seen':'\u25CB New'} \u00B7 Version v${typeof TUTORIAL_VERSION!=='undefined'?TUTORIAL_VERSION:1}</div>
+      <div class="tutorial-actions"><button class="tutorial-action-btn ghost" onclick="if(typeof TutorialCache!=='undefined'){TutorialCache.reset();location.reload();}">\u21BA RESET</button><button class="tutorial-action-btn primary" onclick="setTab('battle')">\u2192 OPEN BATTLE</button></div>
+    </div>
+  </div>`;
+}
+function showBattleTutorialMenu(){
+  const el=document.getElementById('modal');
+  if(!el)return;
+  el.style.display='flex';
+  el.innerHTML=`<div class="m-box" style="border:2px solid #7766ff;width:520px"><div class="m-hdr" style="background:linear-gradient(90deg,#0d0e28,#1a1e40);border-bottom:2px solid #2a3060"><div class="dot" style="width:10px;height:10px;background:#7766ff;box-shadow:0 0 8px #7766ff"></div><span style="color:#aabbff;font-size:12px;font-weight:bold;letter-spacing:2px">\u2694 BATTLE TUTORIAL</span></div><div class="m-body"><div style="font-size:10px;color:var(--text);margin-bottom:16px"><strong style="display:block;margin-bottom:8px;color:#aabbff">LEARN COMBAT FUNDAMENTALS</strong><p style="color:#8899cc;margin-bottom:12px">Face off against OORTHO, the Arcane Sentinel. Through a series of guided challenges, you'll master:</p><ul style="margin-left:16px;color:#8899cc;font-size:9px;line-height:1.7"><li>\u26A1 Casting spells and managing mana</li><li>\u2728 Building and unleashing signature abilities</li><li>\uD83C\uDFC3 Positioning and movement tactics</li><li>\u231B Handling status effects</li><li>\uD83C\uDFAF Adapting to powerful AI opponents</li></ul></div><div style="background:#0a0d1e;border:1px solid #1a2050;border-radius:4px;padding:12px;margin-bottom:12px;font-size:9px;color:#5566aa"><div style="margin-bottom:6px"><strong>\uD83D\uDCCA OPPONENT: OORTHO</strong></div><div>The Arcane Sentinel uses spiral magic, chain lightning, and devastating beam attacks. High durability with adaptive AI. Difficulty: 7/10</div></div><div style="background:#0a0d1e;border:1px solid #1a2050;border-radius:4px;padding:12px;margin-bottom:12px;font-size:9px;color:#5566aa"><div style="margin-bottom:6px"><strong>\uD83D\uDD25 YOUR UNIT: PYROS</strong></div><div>The Pyromancer uses fire-based spread spells and powerful nova signature. Berserker passive. Perfect for learning aggressive tactics.</div></div></div><div class="m-foot"><button onclick="document.getElementById('modal').style.display='none'" style="background:transparent;border:1px solid var(--border);color:var(--dim);padding:5px 14px;font-size:11px;font-family:monospace;border-radius:2px;cursor:pointer">CANCEL</button><button onclick="document.getElementById('modal').style.display='none';if(typeof startBattleTutorial==='function')startBattleTutorial()" style="background:#120e30;border:1px solid #44ff88;color:#44ff88;padding:5px 14px;font-size:11px;font-family:monospace;border-radius:2px;cursor:pointer;margin-left:auto">\u25B6 BEGIN TUTORIAL</button></div></div>`;
+}
+function startBattleTutorial(){
+  S.selected[0] = 'pyros'; S.selected[1] = 'oortho';
+  if(typeof TUT!=='undefined'){
+    TUT.active = true; TUT.fired.clear(); TUT.flavorT = 0;
+    if(typeof CS_FLAVOR!=='undefined')TUT.flavorQueue = shuffleArr([...CS_FLAVOR]);
+    TUT.challengeQueue = []; TUT.challengesFired.clear();
+  }
+  if(typeof restartGame==='function')restartGame(true); else console.warn('restartGame not available');
+  setTab('battle');
+  setTimeout(() => { if(typeof playCutscene==='function')playCutscene('oortho_intro'); }, 400);
+}
+function shuffleArr(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function getDef(id){return S.units.find(u=>u.id===id);}
+function hpCol(r){return r>.5?'#44ff88':r>.25?'#ffaa44':'#ff3344';}
+function buildTutorialBattleDef(def, slot){
+  const out=dc(def);
+  if(typeof TUT!=='undefined' && TUT.active){
+    if(slot===0 && out.id==='pyros'){
+      out.hp=1500; out.armor=60; out.spd=1.25;
+      out.magic.spell.dmg=8; out.magic.spell.cd=1500;
+      out.magic.mana.max=220; out.magic.sig.power=70;
+      out.magic.sig.chargeRate=0.42; out.magic.sig.autoThreshold=.95;
+      out.ai.aggression=0.3; out.ai.keepDistance=0.8;
+      out.passive.power=0.18; out.passive2.power=0.18;
+    }
+    if(slot===1 && out.id==='oortho'){
+      out.hp=2600; out.armor=110; out.spd=0.95;
+      out.magic.spell.dmg=10; out.magic.spell.cd=1800;
+      out.magic.mana.max=280; out.magic.sig.power=95;
+      out.magic.sig.chargeRate=0.33; out.magic.sig.autoThreshold=.95;
+      out.ai.aggression=0.4; out.ai.keepDistance=0.15;
+      out.passive.power=0.3; out.passive2.power=0.3;
+    }
+  }
+  return out;
+}
+function restartGame(forceTutorialMode=false){
+  const d0=getDef(S.selected[0]),d1=getDef(S.selected[1]);if(!d0||!d1)return;
+  const tutorialMode = forceTutorialMode || (typeof TUT!=='undefined' && TUT.active);
+  if (CS.active && typeof endCutscene==='function') endCutscene();
+  const bd0=buildTutorialBattleDef(d0,0), bd1=buildTutorialBattleDef(d1,1);
+  if(typeof initGs==='function'){
+    S.gs=initGs(bd0,bd1);
+    S.gs.resultCutscenePlayed=false;
+    S.liveHPs=[bd0.hp,bd1.hp];
+    S.liveManas=[bd0.magic.enabled?bd0.magic.mana.max*.65:0,bd1.magic.enabled?bd1.magic.mana.max*.65:0];
+    S.liveSigCharges=[0,0];S.lt=null;
+    if(typeof TUT!=='undefined'){
+      TUT.active = tutorialMode;
+      if(TUT.active){
+        TUT.fired.clear(); TUT.flavorT=0;
+        if(typeof CS_FLAVOR!=='undefined')TUT.flavorQueue = shuffleArr([...CS_FLAVOR]);
+        TUT.challengeQueue=[]; TUT.challengesFired.clear();
+      }
+    }
+    if(typeof updateBars==='function')updateBars();
+  }
+}
+function updateBars(){
+  if(!S.gs)return;
+  for(let s=0;s<2;s++){
+    const u=S.gs.units[s];
+    const hR=Math.max(0,u.hp/u.maxHp),mR=u.def.magic.enabled?Math.max(0,u.mana/(u.def.magic.mana.max||1)):0,sc2=u.sigCharge||0;
+    const hb=document.getElementById('hb'+s),ht=document.getElementById('ht'+s);
+    const mb=document.getElementById('mb'+s),mt=document.getElementById('mt'+s);
+    const cb=document.getElementById('cb'+s),ct=document.getElementById('ct'+s);
+    const stEl=document.getElementById('st'+s);
+    if(hb){hb.style.width=(hR*100)+'%';hb.style.background=hpCol(hR);}
+    if(ht){ht.textContent=Math.max(0,Math.round(u.hp))+'/'+u.maxHp;ht.style.color=hpCol(hR);}
+    if(mb)mb.style.width=(mR*100)+'%';if(mt&&u.def.magic.enabled)mt.textContent=Math.round(u.mana)+'/'+u.def.magic.mana.max;
+    if(cb)cb.style.width=(sc2*100)+'%';if(ct)ct.textContent=Math.round(sc2*100)+'%';
+    if(stEl){const stk=Object.keys(u.status||{}).filter(k=>u.status[k].timer>0);stEl.textContent=stk.length?stk.map(k=>k.toUpperCase()).join(' '):'';stEl.style.color=stk.length?(typeof SFX_COL!=='undefined'?SFX_COL[stk[0]]:'#aaa'):'transparent';}
+  }
+}
+function mkTags(def){
+  const t=[];
+  if(def.magic.enabled){
+    const sch = typeof SCH!=='undefined' && SCH[def.school] ? SCH[def.school] : {glow:'#7766ff'};
+    t.push(`<span class="tag" style="background:${sch.glow}22;color:${def.color};border:1px solid ${def.color}44">${def.school.toUpperCase()}</span>`);
+  }
+  if(def.melee.enabled)t.push(`<span class="tag" style="background:#40200022;color:#ffaa44;border:1px solid #ffaa4444">${def.melee.weapon.toUpperCase()}</span>`);
+  if(def.ranged.enabled)t.push(`<span class="tag" style="background:#20304422;color:#44ccff;border:1px solid #44ccff44">${def.ranged.ammo.toUpperCase()}</span>`);
+  [def.passive,def.passive2].filter(p=>p&&p.id!=='none').forEach(p=>{
+    const pd = typeof PASSIVES!=='undefined' && PASSIVES[p.id] ? PASSIVES[p.id] : null;
+    if(pd)t.push(`<span class="tag" style="background:#1a1a3a;color:#8899ff;border:1px solid #3a3a6a">${pd.name}</span>`);
+  });
+  if(def.glitch&&def.glitch.enabled&&def.glitch.ability!=='none'){
+    const gd = typeof GLITCH_DEFS!=='undefined' && GLITCH_DEFS[def.glitch.ability] ? GLITCH_DEFS[def.glitch.ability] : null;
+    if(gd)t.push(`<span class="tag" style="background:#001a33;color:#44aaff;border:1px solid #44aaff66">${gd.name}</span>`);
+  }
+  return t.join('');
+}
+function tickTutorial(gs, dt){
+  if(typeof TUT==='undefined' || !TUT.active || !gs || CS.active || gs.winner) return;
+  const player = gs.units[0], enemy = gs.units[1];
+  if(!player || !enemy) return;
+  if(TUT.challengeQueue && TUT.challengeQueue.length){
+    const cid = TUT.challengeQueue.shift();
+    if(cid && !TUT.challengesFired.has(cid)){ TUT.challengesFired.add(cid); if(typeof openStoryChallenge==='function')openStoryChallenge(cid); }
+    return;
+  }
+  const pHp = player.hp / player.maxHp;
+  const eHp = enemy.alive ? enemy.hp / enemy.maxHp : 0;
+  const scaledTime = gs.time;
+  if(!TUT.fired.has('dead') && gs.winner){
+    TUT.fired.add('dead'); TUT.active = false;
+    if(typeof TutorialCache!=='undefined')TutorialCache.markBattleTutorialDone();
+    if(!gs.resultCutscenePlayed){
+      gs.resultCutscenePlayed = true;
+      const playerWon = player.alive && !enemy.alive;
+      if(typeof playCutscene==='function')playCutscene(playerWon ? 'oortho_defeated' : 'player_defeated');
+    }
+    return;
+  }
+  if(typeof TUT_BEATS!=='undefined'){
+    for(const beat of TUT_BEATS){
+      if(TUT.fired.has(beat.id)) continue;
+      const natural = beat.test(pHp, eHp, player, enemy);
+      const forced = scaledTime >= beat.forceAt;
+      if(natural || forced){
+        TUT.fired.add(beat.id);
+        if(beat.challenge && TUT.challengeQueue) TUT.challengeQueue.push(beat.challenge);
+        if(typeof playCutscene==='function')playCutscene(beat.cs);
+        return;
+      }
+    }
+  }
+  if(scaledTime < 8000) return;
+  if(TUT.flavorT !== undefined) TUT.flavorT += dt;
+  if(TUT.flavorT >= (TUT.flavorInterval || 13000) && TUT.flavorQueue && TUT.flavorQueue.length){
+    TUT.flavorT = 0;
+    if(typeof playCutscene==='function')playCutscene(TUT.flavorQueue.shift());
+  }
+}
+function dismissOnboard(){
+  localStorage.setItem('cf_ob_v6','1');
+  const el=document.getElementById('ob');
+  if(el)el.classList.add('hidden');
 }
 function renderBattle(){
   const d0=getDef(S.selected[0]),d1=getDef(S.selected[1]);

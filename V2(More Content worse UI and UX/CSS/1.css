@@ -35,6 +35,88 @@ body {
   font-size: 11px;
 }
 
+/* ── GLOBAL CURSOR STYLES ─────────────────────────────────── */
+:root {
+  cursor: default;
+}
+a, button, .nav-btn, .c-btn, .spd-btn, .intel-btn, .mb, .sb, .tog, .ed-tab, .jbt, .tutorial-action-btn, .cs-skip, .ob-close {
+  cursor: pointer;
+}
+.u-card, .r-card, .json-litem, .tip-host {
+  cursor: pointer;
+}
+input, textarea {
+  cursor: text;
+}
+.loading-spinner {
+  cursor: wait;
+}
+.disabled, :disabled {
+  cursor: not-allowed;
+}
+
+/* ── CUSTOM CURSOR ELEMENT ─────────────────────────────────── */
+.custom-cursor {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--acc);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transition: transform 0.1s ease-out, border-color 0.2s, width 0.2s, height 0.2s;
+  transform: translate(-50%, -50%);
+  mix-blend-mode: difference;
+}
+.custom-cursor-dot {
+  position: fixed;
+  width: 4px;
+  height: 4px;
+  background: var(--acc);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.05s ease-out;
+}
+
+/* ── CURSOR STATES ─────────────────────────────────────────── */
+body.hovering-link .custom-cursor,
+body.hovering-button .custom-cursor {
+  width: 40px;
+  height: 40px;
+  border-color: var(--acc2);
+  background: rgba(119,102,255,0.1);
+}
+body.hovering-input .custom-cursor {
+  width: 16px;
+  height: 16px;
+  border-color: var(--warn);
+}
+body.hovering-drag .custom-cursor {
+  width: 24px;
+  height: 24px;
+  border-color: var(--good);
+  border-style: solid;
+}
+body.hovering-canvas .custom-cursor {
+  width: 30px;
+  height: 30px;
+  border-color: rgba(255,255,255,0.5);
+  border-style: dashed;
+}
+
+/* ── SPECIFIC ELEMENT CURSORS ─────────────────────────────── */
+.canvas-wrap canvas {
+  cursor: crosshair;
+}
+.side, .ed-left, .json-lpanel, .json-rpanel {
+  cursor: default;
+}
+.rank-badge {
+  cursor: help;
+}
+
 /* ── HEADER / NAV ─────────────────────────────────────────── */
 .hdr {
   display: flex;
@@ -94,6 +176,19 @@ body {
 .content::-webkit-scrollbar-track { background: #040609; }
 .content::-webkit-scrollbar-thumb { background: #1a2040; border-radius: 3px; }
 .content::-webkit-scrollbar-thumb:hover { background: #2a3050; }
+
+/* ── LOADING / SKELETON STATES ─────────────────────────────── */
+.skeleton { background: linear-gradient(90deg, #0a0d1e 25%, #0f1225 50%, #0a0d1e 75%); background-size: 200% 100%; animation: skeletonShimmer 1.5s infinite; border-radius: 3px; }
+@keyframes skeletonShimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+.skeleton-text { height: 10px; margin-bottom: 6px; }
+.skeleton-text.short { width: 40%; }
+.skeleton-text.medium { width: 70%; }
+.skeleton-text.long { width: 90%; }
+.skeleton-avatar { width: 40px; height: 40px; border-radius: 50%; }
+.skeleton-card { height: 80px; border-radius: 4px; }
+.skeleton-bar { height: 6px; width: 100%; border-radius: 2px; }
+.loading-spinner { width: 20px; height: 20px; border: 2px solid var(--border2); border-top-color: var(--acc); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to{transform:rotate(360deg)} }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 900px) {

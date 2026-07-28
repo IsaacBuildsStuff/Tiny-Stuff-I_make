@@ -64,7 +64,10 @@
 .u-card:hover { border-color: var(--border2); background: #080a14; transform: translateX(2px); box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
 .u-card.sel { border-color: var(--acc); background: rgba(119,102,255,0.06); box-shadow: 0 0 10px rgba(119,102,255,0.15), inset 0 0 15px rgba(119,102,255,0.03); }
 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-.tag { display: inline-block; padding: 1px 5px; border-radius: 2px; font-size: 8px; letter-spacing: 0.5px; margin-right: 2px; }
+.tag { display: inline-block; padding: 2px 6px; border-radius: 3px; font-size: 8px; letter-spacing: 0.5px; margin-right: 3px; transition: all 0.2s; position: relative; overflow: hidden; }
+.tag::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02)); opacity: 0; transition: opacity 0.2s; }
+.tag:hover::before { opacity: 1; }
+.tag:hover { transform: translateY(-1px); box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 .bar-bg { background: #040609; border-radius: 2px; overflow: hidden; }
 .bar-f { height: 100%; border-radius: 2px; transition: width 0.3s, background 0.3s; }
 .srow { display: flex; justify-content: space-between; font-size: 9px; }
@@ -153,10 +156,10 @@
 /* ── V6B: TOOLTIP SYSTEM ────────────────────────────────────── */
 .tip-host { position: relative; display: inline-flex; }
 .tip-host:hover .tip { opacity: 1; transform: translateX(-50%) translateY(0); }
-.tip { position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%) translateY(4px); background: #0a0d20; border: 1px solid #2a3060; border-radius: 4px; padding: 7px 10px; min-width: 140px; max-width: 210px; pointer-events: none; opacity: 0; transition: opacity .18s, transform .18s; z-index: 100; text-align: left; white-space: normal; }
-.tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 5px solid transparent; border-top-color: #2a3060; }
-.tip-title { font-size: 9px; color: #aabbff; font-weight: bold; letter-spacing: 1px; margin-bottom: 3px; }
-.tip-body { font-size: 8px; color: #6677aa; line-height: 1.5; }
+.tip { position: absolute; bottom: calc(100% + 10px); left: 50%; transform: translateX(-50%) translateY(4px); background: linear-gradient(135deg, #0a0d20, #06080f); border: 1px solid var(--border2); border-radius: 5px; padding: 8px 12px; min-width: 140px; max-width: 220px; pointer-events: none; opacity: 0; transition: opacity .2s cubic-bezier(0.4, 0, 0.2, 1), transform .2s cubic-bezier(0.4, 0, 0.2, 1); z-index: 100; text-align: left; white-space: normal; box-shadow: 0 4px 20px rgba(0,0,0,0.4); }
+.tip::after { content: ''; position: absolute; top: 100%; left: 50%; transform: translateX(-50%); border: 6px solid transparent; border-top-color: var(--border2); }
+.tip-title { font-size: 9px; color: #aabbff; font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
+.tip-body { font-size: 8px; color: #6677aa; line-height: 1.6; }
 
 /* ── V6B: ONBOARDING BANNER ─────────────────────────────────── */
 .onboard-bar { background: #02040e; border-bottom: 1px solid #1a2040; padding: 6px 16px; display: flex; align-items: center; gap: 12px; flex-shrink: 0; font-size: 9px; }
